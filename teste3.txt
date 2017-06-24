@@ -1,0 +1,30 @@
+int input(void)
+{
+}
+
+void output(int x)
+{
+}
+
+void main(void)
+{ 
+int x; 
+if (x == 0){
+x = 0;
+}
+else{
+	if(x == 1){
+		x = 1;
+	}
+	else{
+		if(x == 2){
+			x = 2;
+		}
+		else{
+			x = 3;
+		}
+	}
+}
+x = 100;
+
+}

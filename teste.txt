@@ -1,0 +1,17 @@
+int input(void)
+{
+}
+
+void output(int out)
+{
+}
+
+void main(void)
+{
+int a;
+int b;
+int c[100];
+
+a = c[10];
+c[10] = a;
+}
