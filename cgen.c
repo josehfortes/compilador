@@ -185,6 +185,7 @@ void ail_print(){
 		case FunctionParameterK:
 		break;
 		case CmpEqK:
+			printf("(Eq)\n");
 		break;
 		case CmpNEqK:
 		break;
@@ -731,6 +732,60 @@ static void genExp( TreeNode * tree)
 			}
 			//ja temos a primeira variavel,a gora devemos tratar a segunda
 			//a segunda variavel pode ser: imediato, variavel(comum ou vetor), opk ou chamada de funcao
+			if(tree->child[1]->attr.type == NULL){
+				//é um opk
+				cGen(tree->child[1]);
+				op2.kind = TempK;
+				op2.value = tempT;
+			}
+			else{
+				//é uma variavel ou uma chamada de funcao ou um inteiro
+				if(strcmp(tree->child[1]->attr.type,"Integer")==0){
+					//é um inteiro
+					op2.kind = ImmK;
+					op2.value = tree->child[1]->attr.val;
+				}
+				else{
+					//variavel ou chamada de funcao
+					cGen(tree->child[1]);
+					if(strcmp(tree->child[1]->attr.type,"id")==0){
+						//é uma variavel
+						//precisa verificar se é vetor ou inteiro
+						op2.kind = SymtabK;
+						op2.value = cgen_search_top(tree->child[1]->attr.name);
+						if(strcmp(tree->child[1]->attr.typeVar, "vector") == 0){
+							//é um vetor
+							op2.kind = VecK;
+							//o value é o mesmo, precisamos de armazenar as informacoes do content agora
+							
+							int posvec2 = tree->child[1]->child[0]->attr.val;
+							op2.tam = posvec2;
+							op2.type = ImmK;
+							
+							
+							if(strcmp(tree->child[1]->child[0]->attr.type,"Integer")!=0){
+								//o valor de dentro do [] do vetor e uma variavel
+								int posvec2 = cgen_search_top(tree->child[1]->child[0]->attr.name);
+								op2.tam = posvec2;
+								op2.type = SymtabK;
+							}
+							
+						}
+					}
+					else{
+						//é uma chamada de funcao, devemos chama-la e armazenar dps o seu retorno
+						//o retorno estará em um temporario
+						cGen(tree->child[1]);
+						op2.kind = TempK;
+						op2.value = tempT;
+					}
+				}
+			}
+			//precisamos setar um temporario pra instrucao e armazena-lo, este vai no op3
+			tempT++;
+			op3.value = tempT;
+			//criamos na lista
+			ail_insert(ail_create(Op1,op1,op2,op3));
 			
 		}
 		
