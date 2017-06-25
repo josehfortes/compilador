@@ -160,7 +160,7 @@ void ail_print(){
 		case AsgK:
 			sprintf(str, "%d", t->op1.value);
 			sprintf(str2, "%d", t->op2.value);
-			if(t->op1.kind == VecAsgK){
+			if(t->op1.kind == VecK){
 				sprintf(str, "%d[%d]", t->op1.value, t->op1.tam);
 				if(t->op1.type == ImmK){
 					sprintf(str, "%d[(%d)]", t->op1.value, t->op1.tam);
@@ -185,7 +185,28 @@ void ail_print(){
 		case FunctionParameterK:
 		break;
 		case CmpEqK:
-			printf("(Eq)\n");
+			sprintf(str, "%d", t->op1.value);
+			sprintf(str2, "%d", t->op2.value);
+			//verificando a variavel 1
+			if(t->op1.kind == VecK){
+				sprintf(str, "%d[%d]", t->op1.value, t->op1.tam);
+				if(t->op1.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op1.value, t->op1.tam);
+				}
+			}
+			//verificando a variavel 2
+			if(t->op2.kind == TempK)
+				sprintf(str2, "t%d", t->op2.value);
+			else if (t->op2.kind == ImmK)
+				sprintf(str2, "(%d)", t->op2.value);
+			else if(t->op2.kind == VecK){
+				sprintf(str, "%d[%d]", t->op2.value, t->op2.tam);
+				if(t->op2.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op2.value, t->op2.tam);
+				}
+			}
+			
+			printf("(Eq,%s,%s,t%d)\n",str,str2,t->op3.value);
 		break;
 		case CmpNEqK:
 		break;
