@@ -314,6 +314,7 @@ void ail_print(){
 			printf("(Div,t%d,%s,%s)\n",t->op3.value,str,str2);
 		break;
 		case FunctionCallK:
+			printf("(cal,%d,%d,t%d)\n",t->op1.value,t->op2.value,t->op3.value);
 		break;
 		default:
 		break;
@@ -699,6 +700,37 @@ static void genExp( TreeNode * tree)
 		}
 		else{
 			//comparacoes
+			if(tree->attr.op == EQEQ) //==
+				Op1 = CmpEqK;
+			else if(tree->attr.op == NEQ) //!=
+				Op1= CmpNEqK;
+			else if(tree->attr.op == LT) // <
+				Op1 = CmpLK;
+			else if(tree->attr.op == LE) // <=
+				Op1 = CmpLEqK;
+			else if(tree->attr.op == MT) // >
+				Op1 = CmpGK;
+			else if(tree->attr.op == ME) // >=
+				Op1 = CmpGEqK;
+			//ja sabemos o que comparar, agora precisamos de verificar o primeiro elemento
+			//ele pode ser uma variavel comum ou vetor
+			op1.kind = SymtabK;
+			op1.value = cgen_search_top(tree->child[0]->attr.name);
+			if(strcmp(tree->child[0]->attr.typeVar, "vector") == 0){
+				//é um vetor, devemos fazer todo o tratamento...
+				op1.kind = VecK;
+				int posvec = tree->child[0]->child[0]->attr.val;
+				op1.tam = posvec;
+				op1.type = ImmK;
+				if(strcmp(tree->child[0]->child[0]->attr.type,"Integer")!=0){
+					//o valor de dentro do [] do vetor e uma variavel
+					int posvec = cgen_search_top(tree->child[0]->child[0]->attr.name);
+					op1.tam = posvec;
+					op1.type = SymtabK;
+				}
+			}
+			//ja temos a primeira variavel,a gora devemos tratar a segunda
+			//a segunda variavel pode ser: imediato, variavel(comum ou vetor), opk ou chamada de funcao
 			
 		}
 		
