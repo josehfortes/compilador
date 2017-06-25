@@ -15,17 +15,18 @@
 
                  AddK, SubK, MultK, DivK,
                  CmpEqK, CmpNEqK, CmpGK, CmpGEqK, CmpLK, CmpLEqK,
-                 VarAsgK, VecAsgK,
+                 AsgK, VarAsgK, VecAsgK,
                  InputK, OutputK,
                  FunctionParameterK, FunctionCallK, FunctionReturnK, LabK,
-                 GotoK,
-				 If_FK
+                 GotoK,If_FK
  } AsmInstKind;
 
  typedef struct Operand {
-	 OperandKind kind;
-	 int value;
-	OperandKind vecType;
+	OperandKind kind;
+	int value;
+	//usado para vetores
+	int tam;
+	OperandKind type;
  } Operand;
 
  typedef struct AsmInstList {

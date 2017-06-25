@@ -52,6 +52,8 @@ AsmInstList ail_create(AsmInstKind aik, Operand op1, Operand op2, Operand op3){
     AsmInstList ai = (AsmInstList) malloc(sizeof(struct AsmInstList));
     ai->aik = aik;
     ai->op1 = op1;
+	ai->op2 = op2;
+	ai->op3 = op3;
     return ai;
 }
 
@@ -155,6 +157,31 @@ void ail_print(){
 				printf("(Lab,%d,_,_)\n",t->op1.value);
 			}
 		break;
+		case AsgK:
+			sprintf(str, "%d", t->op1.value);
+			sprintf(str2, "%d", t->op2.value);
+			if(t->op1.kind == VecAsgK){
+				sprintf(str, "%d[%d]", t->op1.value, t->op1.tam);
+				if(t->op1.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op1.value, t->op1.tam);
+				}
+			}
+			//agora definimos o op2
+			//ele pode ser um TempK, um ImmK um SymtabK ou um VecK
+			if(t->op2.kind == TempK)
+				sprintf(str2, "t%d", t->op2.value);
+			else if (t->op2.kind == ImmK)
+				sprintf(str2, "(%d)", t->op2.value);
+			
+			else if (t->op2.kind == VecK){
+				
+				sprintf(str2, "%d[%d]", t->op2.value, t->op2.tam);
+				if(t->op2.type == ImmK)
+					sprintf(str2, "%d[(%d)]", t->op2.value, t->op2.tam);
+			}
+			
+			printf("(Asg,%s,%s,_)\n",str,str2);
+		break;
 		case FunctionParameterK:
 		break;
 		case CmpEqK:
@@ -174,12 +201,116 @@ void ail_print(){
 		case If_FK:
 		break;
 		case AddK:
+			sprintf(str, "%d", t->op1.value);
+			sprintf(str2, "%d", t->op2.value);
+			//verificamos o que é o op1
+			if(t->op1.kind == VecK){
+				sprintf(str, "%d[%d]", t->op1.value, t->op1.tam);
+				if(t->op1.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op1.value, t->op1.tam);
+				}
+			}
+			else if(t->op1.kind == ImmK)
+				sprintf(str, "(%d)", t->op1.value);
+			else if(t->op1.kind == TempK)
+				sprintf(str, "t%d", t->op1.value);
+			
+			//verificamos o que é o op2
+			if(t->op2.kind == VecK){
+				sprintf(str2, "%d[%d]", t->op2.value, t->op2.tam);
+				if(t->op2.type == ImmK){
+					sprintf(str2, "%d[(%d)]", t->op2.value, t->op2.tam);
+				}
+			}
+			else if(t->op2.kind == ImmK)
+				sprintf(str2, "(%d)", t->op2.value);
+			else if(t->op2.kind == TempK)
+				sprintf(str2, "t%d", t->op2.value);
+			printf("(Add,t%d,%s,%s)\n",t->op3.value,str,str2);
 		break;
 		case SubK:
+			sprintf(str, "%d", t->op1.value);
+			sprintf(str2, "%d", t->op2.value);
+			//verificamos o que é o op1
+			if(t->op1.kind == VecK){
+				sprintf(str, "%d[%d]", t->op1.value, t->op1.tam);
+				if(t->op1.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op1.value, t->op1.tam);
+				}
+			}
+			else if(t->op1.kind == ImmK)
+				sprintf(str, "(%d)", t->op1.value);
+			else if(t->op1.kind == TempK)
+				sprintf(str, "t%d", t->op1.value);
+			
+			//verificamos o que é o op2
+			if(t->op2.kind == VecK){
+				sprintf(str2, "%d[%d]", t->op2.value, t->op2.tam);
+				if(t->op2.type == ImmK){
+					sprintf(str2, "%d[(%d)]", t->op2.value, t->op2.tam);
+				}
+			}
+			else if(t->op2.kind == ImmK)
+				sprintf(str2, "(%d)", t->op2.value);
+			else if(t->op2.kind == TempK)
+				sprintf(str2, "t%d", t->op2.value);
+			printf("(Sub,t%d,%s,%s)\n",t->op3.value,str,str2);
 		break;
 		case MultK:
+			sprintf(str, "%d", t->op1.value);
+			sprintf(str2, "%d", t->op2.value);
+			//verificamos o que é o op1
+			if(t->op1.kind == VecK){
+				sprintf(str, "%d[%d]", t->op1.value, t->op1.tam);
+				if(t->op1.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op1.value, t->op1.tam);
+				}
+			}
+			else if(t->op1.kind == ImmK)
+				sprintf(str, "(%d)", t->op1.value);
+			else if(t->op1.kind == TempK)
+				sprintf(str, "t%d", t->op1.value);
+			
+			//verificamos o que é o op2
+			if(t->op2.kind == VecK){
+				sprintf(str2, "%d[%d]", t->op2.value, t->op2.tam);
+				if(t->op2.type == ImmK){
+					sprintf(str2, "%d[(%d)]", t->op2.value, t->op2.tam);
+				}
+			}
+			else if(t->op2.kind == ImmK)
+				sprintf(str2, "(%d)", t->op2.value);
+			else if(t->op2.kind == TempK)
+				sprintf(str2, "t%d", t->op2.value);
+			printf("(Mult,t%d,%s,%s)\n",t->op3.value,str,str2);
 		break;
 		case DivK:
+			sprintf(str, "%d", t->op1.value);
+			sprintf(str2, "%d", t->op2.value);
+			//verificamos o que é o op1
+			if(t->op1.kind == VecK){
+				sprintf(str, "%d[%d]", t->op1.value, t->op1.tam);
+				if(t->op1.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op1.value, t->op1.tam);
+				}
+			}
+			else if(t->op1.kind == ImmK)
+				sprintf(str, "(%d)", t->op1.value);
+			else if(t->op1.kind == TempK)
+				sprintf(str, "t%d", t->op1.value);
+			
+			//verificamos o que é o op2
+			if(t->op2.kind == VecK){
+				sprintf(str2, "%d[%d]", t->op2.value, t->op2.tam);
+				if(t->op2.type == ImmK){
+					sprintf(str2, "%d[(%d)]", t->op2.value, t->op2.tam);
+				}
+			}
+			else if(t->op2.kind == ImmK)
+				sprintf(str2, "(%d)", t->op2.value);
+			else if(t->op2.kind == TempK)
+				sprintf(str2, "t%d", t->op2.value);
+			printf("(Div,t%d,%s,%s)\n",t->op3.value,str,str2);
 		break;
 		case FunctionCallK:
 		break;
@@ -241,10 +372,13 @@ static void genStmt( TreeNode * tree)
   Operand op3;
   switch (tree->kind.stmt) {
 	case VectorK:
+		printf("entrou no VectorK\n");
 	break;
 	case ReturnK:
+		printf("entrou no ReturnK\n");
 	break;
 	case AssignK:
+		printf("entrou no AssignK\n");
 	break;
     case CompK:
 		cGen(tree->child[1]);
@@ -255,14 +389,19 @@ static void genStmt( TreeNode * tree)
 		}
     break;
     case VarParK:
+		printf("entrou no VarParK\n");
     break;
 	case WhileK:
+		printf("entrou no WhileK\n");
 	break;
     case IfK:
+		printf("entrou no IfK\n");
     break;
     case VarK:
+		printf("entrou no VarK\n");
 	break;
     case FuncaoK:
+		printf("entrou no FuncaoK\n");
         pos = cgen_search_top(tree->child[0]->attr.name);
         Operand op1 = {SymtabK, pos};
         ail_insert(ail_create(LabK,op1,opn,opn)); //LabK para label
@@ -272,23 +411,26 @@ static void genStmt( TreeNode * tree)
     }
 } /* genStmt */
 
+static Operand opn;
+static Operand op1;
+static Operand op2;
+static Operand op3;
+  
 /* Procedure genExp generates code at an expression node */
 static void genExp( TreeNode * tree)
 {
-  Operand opn;
-  Operand op1;
-  Operand op2;
-  Operand op3;
   AsmInstKind Op1;
   
   switch (tree->kind.exp) {
 	case ConstK :
+		printf("entrou no constK\n");
 		OpGlobal.value = tree->attr.val;
     break; // ConstK
 	case IntK:
+		printf("entrou no IntK\n");
 	break;
 	case AtivK:
-		printf("");
+		printf("entrou no ativk");
 		//precisamos buscar quantos parametros a funcao temp
 		int qt = 0;
 		TreeNode * t = tree->child[0];
@@ -320,24 +462,183 @@ static void genExp( TreeNode * tree)
 		
 	break;
     case IdK :
+		printf("entrou no IdK\n");
 		OpGlobal.value = cgen_search_top(tree->attr.name);
     break; /* IdK */
 	case OpK:
+		printf("entrou no OpK\n");
 		//todas as operações
-		//Op1 armazena se é alguma operação
-		if(tree->attr.op == PLUS){
-			printf("É UM ADD\n");
-			Op1 = AddK;
+		
+		//verifica se é um assign
+		if(tree->attr.op == EQ){//é um assign, iremos no final criar o asgk
+		
+			int var1 = cgen_search_top(tree->child[0]->attr.name);//buscando a variavel que vai receber o assign
+			//pode ser variavel ou vetor
+			op1.kind = VarAsgK;
+			op1.value = var1;
+			
+			if(strcmp(tree->child[0]->attr.typeVar, "vector") == 0){
+				int posvec = tree->child[0]->child[0]->attr.val;
+				//a variavel é um vetor
+				op1.kind = VecAsgK;
+				op1.value = var1;
+				op1.tam = posvec;
+				op1.type = ImmK;
+				//precisamos de saber agora o tamanho do vetor, e se é uma variavel ou um numero
+				if(strcmp(tree->child[0]->child[0]->attr.type,"Integer")!=0){
+					//é uma variavel
+					posvec = cgen_search_top(tree->child[0]->child[0]->attr.name);
+					//altera o op1 para este ao inves do de variavel
+					op1.tam = posvec;
+					op1.type = SymtabK;
+				}
+			}
+			//a partir daqui, temos o operando 1, precisamos do segundo
+			//vamos ver o que esta depois do = agora
+			/*
+			* ele pode ser um TempK, um ImmK um SymtabK ou um VecK
+			*/
+			
+			if(tree->child[1]->attr.type == NULL){
+				//é um opk
+				cGen(tree->child[1]);
+				op2.kind = TempK;
+				op2.value = tempT;
+			}
+			else{
+				
+				//é uma variavel ou uma chamada de funcao ou um inteiro
+				if(strcmp(tree->child[1]->attr.type,"Integer")==0){
+					printf("chegou aki>%d<\n\n\n", tree->child[1]->attr.val);
+					//é um inteiro
+					op2.kind = ImmK;
+					op2.value = tree->child[1]->attr.val;
+					printf("VALUE:%d\n",op2.value);
+				}
+				else{
+					//variavel ou chamada de funcao
+					cGen(tree->child[1]);
+					if(strcmp(tree->child[1]->attr.type,"id")==0){
+						//é uma variavel
+						//precisa verificar se é vetor ou inteiro
+						op2.kind = SymtabK;
+						op2.value = cgen_search_top(tree->child[1]->attr.name);
+						if(strcmp(tree->child[1]->attr.typeVar, "vector") == 0){
+							//é um vetor
+							op2.kind = VecK;
+							//o value é o mesmo, precisamos de armazenar as informacoes do content agora
+							
+							int posvec2 = tree->child[1]->child[0]->attr.val;
+							op2.tam = posvec2;
+							op2.type = ImmK;
+							
+							
+							if(strcmp(tree->child[1]->child[0]->attr.type,"Integer")!=0){
+								//o valor de dentro do [] do vetor e uma variavel
+								int posvec2 = cgen_search_top(tree->child[1]->child[0]->attr.name);
+								op2.tam = posvec2;
+								op2.type = SymtabK;
+							}
+							
+						}
+					}
+					else{
+						//é uma chamada de funcao, devemos chama-la e armazenar dps o seu retorno
+						//o retorno estará em um temporario
+						cGen(tree->child[1]);
+						op2.kind = TempK;
+						op2.value = tempT;
+					}
+				}
+			}
+			//temos os 2 operandos, vamos add na lista o asgk
+			ail_insert(ail_create(AsgK,op1,op2,opn));
+		} //fim do EQ
+		else{
+			//é uma operação
+			
+			//tratando o primeiro valor da operaca
+			cGen(tree->child[0]);
+			//assumimos que os valores sao imediatos
+			op1.kind = ImmK;
+			op1.value = OpGlobal.value;
+			//precisamos de saber o que é esse valor (pode ser vetor, variavel ou imediato)
+			if(tree->child[0]->attr.type == NULL){
+				//é um temporario
+				op1.value = tempT;
+				op1.kind = TempK;
+			}
+			else if (strcmp(tree->child[0]->attr.type,"id") == 0){
+				//é uma variavel
+				//precisamos ainda de verificar se é vetor ou variavel comum, vamos assumir que é uma comum
+				op1.kind = SymtabK;
+				if(strcmp(tree->child[0]->attr.typeVar, "vector") == 0){
+					//é um vetor, devemos fazer todo o tratamento...
+					op1.kind = VecK;
+					int posvec = tree->child[0]->child[0]->attr.val;
+					op1.tam = posvec;
+					op1.type = ImmK;
+					if(strcmp(tree->child[0]->child[0]->attr.type,"Integer")!=0){
+						//o valor de dentro do [] do vetor e uma variavel
+						int posvec = cgen_search_top(tree->child[0]->child[0]->attr.name);
+						op1.tam = posvec;
+						op1.type = SymtabK;
+					}
+				}
+			}
+			//terminamos para a variavel 1, fazemos o mesmo pra 2
+			
+			cGen(tree->child[1]);
+			//assumimos que os valores sao imediatos
+			op2.kind = ImmK;
+			op2.value = OpGlobal.value;
+			//precisamos de saber o que é esse valor (pode ser vetor, variavel ou imediato)
+			if(tree->child[1]->attr.type == NULL){
+				//é um temporario
+				op2.value = tempT;
+				op2.kind = TempK;
+			}
+			else if (strcmp(tree->child[1]->attr.type,"id") == 0){
+				//é uma variavel
+				//precisamos ainda de verificar se é vetor ou variavel comum, vamos assumir que é uma comum
+				op2.kind = SymtabK;
+				if(strcmp(tree->child[1]->attr.typeVar, "vector") == 0){
+					//é um vetor, devemos fazer todo o tratamento...
+					op2.kind = VecK;
+					int posvec = tree->child[1]->child[0]->attr.val;
+					op2.tam = posvec;
+					op2.type = ImmK;
+					if(strcmp(tree->child[1]->child[0]->attr.type,"Integer")!=0){
+						//o valor de dentro do [] do vetor e uma variavel
+						int posvec = cgen_search_top(tree->child[1]->child[0]->attr.name);
+						op2.tam = posvec;
+						op2.type = SymtabK;
+					}
+				}
+			}
+			
+			//Op1 armazena qual é a operação
+			if(tree->attr.op == PLUS){
+				Op1 = AddK;
+			}
+			else if(tree->attr.op == MINUS){
+				Op1 = SubK;
+			}
+			else if(tree->attr.op == TIMES){
+				Op1 = MultK;
+			}
+			else if(tree->attr.op == OVER){
+				Op1 = DivK;
+			}
+			//precisamos setar um temporario pra instrucao e armazena-lo, este vai no op3
+			tempT++;
+			op3.value = tempT;
+			//criamos na lista
+			ail_insert(ail_create(Op1,op1,op2,op3));
+			
 		}
-		else if(tree->attr.op == MINUS){
-			Op1 = AddK;
-		}
-		else if(tree->attr.op == TIMES){
-			Op1 = AddK;
-		}
-		else if(tree->attr.op == OVER){
-			Op1 = AddK;
-		}
+		
+		
 	break;
   }
 } /* genExp */
