@@ -23,12 +23,8 @@
  } AsmInstKind;
 
  typedef struct Operand {
-   OperandKind kind;
-   int value;
-	 int value2;
-	 int pos;
-	 int tempValue;
-	 int tempValue2;
+	 OperandKind kind;
+	 int value;
 	OperandKind vecType;
  } Operand;
 
@@ -37,7 +33,7 @@
      AsmInstKind aik;
      Operand op1;
      Operand op2;
-	 int Temp;
+	 Operand op3;
  } * AsmInstList;
 
  AsmInstList ail;
@@ -87,9 +83,7 @@ void asl_insert(AssemblyList as);
   * an AsmInstKind and zero,
   * one or two Operands
  */
- AsmInstList ail_create(AsmInstKind aik);
- AsmInstList ail_create1(AsmInstKind aik, Operand op1);
- AsmInstList ail_create2(AsmInstKind aik, Operand op1, Operand op2);
+ AsmInstList ail_create(AsmInstKind aik, Operand op1, Operand op2, Operand op3);
 
  /* Function ail_insert inserts
   * an assembly instruction
