@@ -182,8 +182,6 @@ void ail_print(){
 			
 			printf("(Asg,%s,%s,_)\n",str,str2);
 		break;
-		case FunctionParameterK:
-		break;
 		case CmpEqK:
 			sprintf(str, "%d", t->op1.value);
 			sprintf(str2, "%d", t->op2.value);
@@ -209,19 +207,124 @@ void ail_print(){
 			printf("(Eq,%s,%s,t%d)\n",str,str2,t->op3.value);
 		break;
 		case CmpNEqK:
+			sprintf(str, "%d", t->op1.value);
+			sprintf(str2, "%d", t->op2.value);
+			//verificando a variavel 1
+			if(t->op1.kind == VecK){
+				sprintf(str, "%d[%d]", t->op1.value, t->op1.tam);
+				if(t->op1.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op1.value, t->op1.tam);
+				}
+			}
+			//verificando a variavel 2
+			if(t->op2.kind == TempK)
+				sprintf(str2, "t%d", t->op2.value);
+			else if (t->op2.kind == ImmK)
+				sprintf(str2, "(%d)", t->op2.value);
+			else if(t->op2.kind == VecK){
+				sprintf(str, "%d[%d]", t->op2.value, t->op2.tam);
+				if(t->op2.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op2.value, t->op2.tam);
+				}
+			}
+			
+			printf("(Neq,%s,%s,t%d)\n",str,str2,t->op3.value);
 		break;
 		case CmpGK:
+			sprintf(str, "%d", t->op1.value);
+			sprintf(str2, "%d", t->op2.value);
+			//verificando a variavel 1
+			if(t->op1.kind == VecK){
+				sprintf(str, "%d[%d]", t->op1.value, t->op1.tam);
+				if(t->op1.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op1.value, t->op1.tam);
+				}
+			}
+			//verificando a variavel 2
+			if(t->op2.kind == TempK)
+				sprintf(str2, "t%d", t->op2.value);
+			else if (t->op2.kind == ImmK)
+				sprintf(str2, "(%d)", t->op2.value);
+			else if(t->op2.kind == VecK){
+				sprintf(str, "%d[%d]", t->op2.value, t->op2.tam);
+				if(t->op2.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op2.value, t->op2.tam);
+				}
+			}
+			
+			printf("(Gt,%s,%s,t%d)\n",str,str2,t->op3.value);
 		break;
 		case CmpGEqK:
+			sprintf(str, "%d", t->op1.value);
+			sprintf(str2, "%d", t->op2.value);
+			//verificando a variavel 1
+			if(t->op1.kind == VecK){
+				sprintf(str, "%d[%d]", t->op1.value, t->op1.tam);
+				if(t->op1.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op1.value, t->op1.tam);
+				}
+			}
+			//verificando a variavel 2
+			if(t->op2.kind == TempK)
+				sprintf(str2, "t%d", t->op2.value);
+			else if (t->op2.kind == ImmK)
+				sprintf(str2, "(%d)", t->op2.value);
+			else if(t->op2.kind == VecK){
+				sprintf(str, "%d[%d]", t->op2.value, t->op2.tam);
+				if(t->op2.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op2.value, t->op2.tam);
+				}
+			}
+			
+			printf("(Get,%s,%s,t%d)\n",str,str2,t->op3.value);
 		break;
 		case CmpLK:
+			sprintf(str, "%d", t->op1.value);
+			sprintf(str2, "%d", t->op2.value);
+			//verificando a variavel 1
+			if(t->op1.kind == VecK){
+				sprintf(str, "%d[%d]", t->op1.value, t->op1.tam);
+				if(t->op1.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op1.value, t->op1.tam);
+				}
+			}
+			//verificando a variavel 2
+			if(t->op2.kind == TempK)
+				sprintf(str2, "t%d", t->op2.value);
+			else if (t->op2.kind == ImmK)
+				sprintf(str2, "(%d)", t->op2.value);
+			else if(t->op2.kind == VecK){
+				sprintf(str, "%d[%d]", t->op2.value, t->op2.tam);
+				if(t->op2.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op2.value, t->op2.tam);
+				}
+			}
+			
+			printf("(Lt,%s,%s,t%d)\n",str,str2,t->op3.value);
 		break;
 		case CmpLEqK:
-		break;
-		case FunctionReturnK:
-		break;
-		case If_FK:
-			printf("(if_f,t%d,L%d,_)\n",t->op1.value,t->op2.value);
+			sprintf(str, "%d", t->op1.value);
+			sprintf(str2, "%d", t->op2.value);
+			//verificando a variavel 1
+			if(t->op1.kind == VecK){
+				sprintf(str, "%d[%d]", t->op1.value, t->op1.tam);
+				if(t->op1.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op1.value, t->op1.tam);
+				}
+			}
+			//verificando a variavel 2
+			if(t->op2.kind == TempK)
+				sprintf(str2, "t%d", t->op2.value);
+			else if (t->op2.kind == ImmK)
+				sprintf(str2, "(%d)", t->op2.value);
+			else if(t->op2.kind == VecK){
+				sprintf(str, "%d[%d]", t->op2.value, t->op2.tam);
+				if(t->op2.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op2.value, t->op2.tam);
+				}
+			}
+			
+			printf("(Let,%s,%s,t%d)\n",str,str2,t->op3.value);
 		break;
 		case AddK:
 			sprintf(str, "%d", t->op1.value);
@@ -338,7 +441,30 @@ void ail_print(){
 		case FunctionCallK:
 			printf("(cal,%d,%d,t%d)\n",t->op1.value,t->op2.value,t->op3.value);
 		break;
-		default:
+		case FunctionReturnK:
+			if(t->op1.kind == ImmK){
+ 			printf("(ret,(%d),_,_)\n",t->op1.value);
+			}
+			else if(t->op1.kind == SymtabK){
+				printf("(ret,%d,_,_)\n",t->op1.value);
+			}
+			else if(t->op1.kind == TempK){
+				printf("(ret,t%d,_,_)\n",t->op1.value);
+			}
+		break;
+		case If_FK:
+			printf("(if_f,t%d,L%d,_)\n",t->op1.value,t->op2.value);
+		break;
+		case FunctionParameterK:
+			if(t->op1.kind == TempK){ //um opk (temporario)
+ 			printf("(par,t%d,_,_)\n",t->op1.value);
+			}
+			else if(t->op1.kind == ImmK){ //um inteiro
+				printf("(par,(%d),_,_)\n",t->op1.value);
+			}
+			else{
+				printf("(par,%d,_,_)\n",t->op1.value);
+			}
 		break;
     }
 
@@ -396,6 +522,21 @@ static void genStmt( TreeNode * tree)
 	break;
 	case ReturnK:
 		printf("entrou no ReturnK\n");
+ 		if(strcmp(tree->child[0]->attr.type, "Integer") == 0){
+ 			Operand op2 = {ImmK, tree->child[0]->attr.val};
+ 			ail_insert(ail_create(FunctionReturnK, op2, opn, opn)); //FunctionReturnK para retorno de inteiro
+ 		}
+ 		else if(strcmp(tree->child[0]->attr.type, "id") == 0){
+ 			Operand op2 = {SymtabK, cgen_search_top(tree->child[0]->attr.name)};
+ 			ail_insert(ail_create(FunctionReturnK, op2, opn, opn)); //FunctionReturnK para retorno de variavel
+ 
+ 		}
+ 		else if(strcmp(tree->child[0]->attr.type, "funcao") == 0){
+ 			//é necessario acessar o ativk
+ 			cGen(tree->child[0]);
+ 			Operand op2 = {TempK, tempT};
+ 			ail_insert(ail_create(FunctionReturnK, op2, opn, opn)); //FunctionReturnK para retorno de inteiro
+ 		}
 	break;
 	case AssignK:
 		printf("entrou no AssignK\n");
@@ -530,8 +671,9 @@ static void genExp( TreeNode * tree)
 			 if(strcmp(t->attr.type,"Integer") == 0){
 				Operand op2 = {ImmK, t->attr.val};
 				ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
-			 }
+			 }//aki
 			 else{
+				cGen(t);
 				Operand op2 = {SymtabK, cgen_search_top(t->attr.name)};
 				ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
 			 }
@@ -543,7 +685,7 @@ static void genExp( TreeNode * tree)
 		tempT++;
 
 		Operand op1 = {TempK, funcao, qt, tempT};
-		ail_insert(ail_create(FunctionParameterK, op1, opn, opn));
+		ail_insert(ail_create(FunctionCallK, op1, opn, opn));
 		
 	break;
     case IdK :
