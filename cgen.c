@@ -199,6 +199,7 @@ void ail_print(){
 		case FunctionReturnK:
 		break;
 		case If_FK:
+			printf("(if_f,t%d,L%d,_)\n",t->op1.value,t->op2.value);
 		break;
 		case AddK:
 			sprintf(str, "%d", t->op1.value);
@@ -314,10 +315,6 @@ void ail_print(){
 		break;
 		case FunctionCallK:
 		break;
-		case VarAsgK:
-		break;
-		case VecAsgK:
-		break;
 		default:
 		break;
     }
@@ -393,9 +390,74 @@ static void genStmt( TreeNode * tree)
     break;
 	case WhileK:
 		printf("entrou no WhileK\n");
+		int labInicio;
+ 		//cria a label inicial
+ 		tempL++;
+ 		labInicio = tempL;
+ 		Operand op3 = {TempK, labInicio};
+ 		ail_insert(ail_create(LabK, op3, opn, opn)); //LabK para label
+ 		//chama a expressao
+ 		cGen(tree->child[0]);
+ 		//cria o IF_F para a label L
+		int labL;
+ 		tempL++;
+ 		labL = tempL;
+		op1.kind = SymtabK;
+		op1.value = tempT;
+		op2.value = tempL;
+ 		ail_insert(ail_create(If_FK, op1, op2, opn)); //LabK para label
+ 		//chama o statement
+ 		cGen(tree->child[1]);
+ 		//cria o goto pra label inicial
+ 		Operand op4 = {TempK, labInicio};
+ 		ail_insert(ail_create(GotoK, op4, opn, opn)); //LabK para label
+ 		//cria a label final L
+ 		Operand op5 = {TempK, labL};
+ 		ail_insert(ail_create(LabK, op5, opn, opn)); //LabK para label
 	break;
     case IfK:
 		printf("entrou no IfK\n");
+		
+		int label1;
+ 		int label2;
+ 		//chama a expressao
+ 		cGen(tree->child[0]);
+ 
+ 		//cria o IF_F para a label 1
+ 		tempL++;
+ 		label1 = tempL;
+ 		Operand op6 = {SymtabK,tempT,label1};
+		op2.value = label1;
+ 		ail_insert(ail_create(If_FK, op6, op2, opn)); //LabK para label
+ 		//chama o statement
+ 		cGen(tree->child[1]);
+ 
+ 
+ 		if(tree->child[2] != NULL){
+ 			//else do if
+ 			//precisamos de colocar um goto Lx para o fim do if não entrar no else
+ 			//cria o goto para o fim do if
+ 			tempL++;
+ 			label2 = tempL;
+ 			Operand op4 = {TempK, label2};
+ 			ail_insert(ail_create(GotoK, op4, opn, opn)); //LabK para label
+ 
+ 
+ 			//cria a label para o else do if (if_f)
+ 			Operand op3 = {TempK, label1};
+ 			ail_insert(ail_create(LabK, op3, opn, opn));
+ 			//chama o else
+ 			cGen(tree->child[2]);
+ 			//cria a label do fim do if para o goto
+ 			Operand op5 = {TempK, label2};
+ 			ail_insert(ail_create(LabK, op5, opn, opn)); //LabK para label
+ 		}
+ 		else{
+ 			//nao existe else no if, apenas colocamos a label pós if
+ 			//cria a label Lx
+ 			Operand op3 = {TempK, label1};
+ 			ail_insert(ail_create(LabK, op3, opn, opn)); //LabK para label
+ 		}
     break;
     case VarK:
 		printf("entrou no VarK\n");
@@ -509,11 +571,9 @@ static void genExp( TreeNode * tree)
 				
 				//é uma variavel ou uma chamada de funcao ou um inteiro
 				if(strcmp(tree->child[1]->attr.type,"Integer")==0){
-					printf("chegou aki>%d<\n\n\n", tree->child[1]->attr.val);
 					//é um inteiro
 					op2.kind = ImmK;
 					op2.value = tree->child[1]->attr.val;
-					printf("VALUE:%d\n",op2.value);
 				}
 				else{
 					//variavel ou chamada de funcao
@@ -554,7 +614,7 @@ static void genExp( TreeNode * tree)
 			//temos os 2 operandos, vamos add na lista o asgk
 			ail_insert(ail_create(AsgK,op1,op2,opn));
 		} //fim do EQ
-		else{
+		else if ((tree->attr.op == PLUS) || (tree->attr.op == MINUS) || (tree->attr.op == TIMES) || (tree->attr.op == OVER)){
 			//é uma operação
 			
 			//tratando o primeiro valor da operaca
@@ -635,6 +695,10 @@ static void genExp( TreeNode * tree)
 			op3.value = tempT;
 			//criamos na lista
 			ail_insert(ail_create(Op1,op1,op2,op3));
+			
+		}
+		else{
+			//comparacoes
 			
 		}
 		
