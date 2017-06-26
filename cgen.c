@@ -671,8 +671,14 @@ static void genExp( TreeNode * tree)
 			 if(strcmp(t->attr.type,"Integer") == 0){
 				Operand op2 = {ImmK, t->attr.val};
 				ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
+				printf(">>>>>>>>É UM IMEDIATO\n");
 			 }//aki
 			 else{
+				//pode ser uma variavel ou uma funcao
+				if(strcmp(t->attr.type,"funcao") == 0){//é uma funcao
+					
+				}
+				printf(">>>%s",t->attr.type);
 				cGen(t);
 				Operand op2 = {SymtabK, cgen_search_top(t->attr.name)};
 				ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
@@ -684,8 +690,9 @@ static void genExp( TreeNode * tree)
 		int funcao = cgen_search_top(tree->attr.name);
 		tempT++;
 
-		Operand op1 = {TempK, funcao, qt, tempT};
-		ail_insert(ail_create(FunctionCallK, op1, opn, opn));
+		Operand op1 = {TempK, funcao};
+		op2.value = qt;
+		ail_insert(ail_create(FunctionCallK, op1, op2, opn));
 		
 	break;
     case IdK :

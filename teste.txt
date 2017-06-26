@@ -6,6 +6,13 @@ void output(int out)
 {
 }
 
+void nomefunc(int a){
+	int x;
+	int y;
+	x = y;
+	x = a;
+}
+
 void main(void)
 {
 int a;
@@ -15,6 +22,6 @@ if(c[b] == 10*20){
 	b = 10;
 }
 
-input();
+nomefunc(nomefunc(a));
 
 }

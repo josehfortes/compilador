@@ -219,6 +219,7 @@ static void insertNode( TreeNode * t)
 				else if (strcmp(t->child[1]->attr.type, "chamadaFuncao") == 0){ //variavel armazena uma funcao
 					//fprintf(listing, "ATRIBUICAO DE VARIAVEL:%s = %s\n",t->child[0]->attr.name, t->child[1]->attr.name);
 					if (st_lookup(t->child[1]->attr.name) == -1) {
+						if((strcmp(t->child[1]->attr.name, "input")!=0))
 						//chamando uma função que não foi declarada
 						declError(t,"Variavel recebendo função que não foi declarada.");
 					}
@@ -244,7 +245,8 @@ static void insertNode( TreeNode * t)
             //declaraçao de variavel, tipo: t->attr.type nome: $t->attr.name
             //variavel pode ser do tipo id,
             if (strcmp(t->attr.type, "id") == 0) {
-                if (st_lookup_top(t->attr.name) != -1) { //variavel ja existe, basta adicionar na tabela
+				
+                if (cgen_search_top(t->attr.name) != -1) { //variavel ja existe, basta adicionar na tabela
 					st_add_lineno(t->attr.name, t->lineno); //adiciona a variavel na tabela
 				}
                 else{
@@ -268,7 +270,8 @@ static void insertNode( TreeNode * t)
 	case VoidK:
           break;
 	case AtivK:
-	if (st_lookup(t->attr.name) == -1) {
+		//chamada de funcao
+	if (busca_funcao_escopo_global(t->attr.name) == -1) {
 		declError(t, "Chamada de função não declarada");
 	} else {
 		//aki
