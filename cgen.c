@@ -456,15 +456,18 @@ void ail_print(){
 			printf("(if_f,t%d,L%d,_)\n",t->op1.value,t->op2.value);
 		break;
 		case FunctionParameterK:
-			if(t->op1.kind == TempK){ //um opk (temporario)
- 			printf("(par,t%d,_,_)\n",t->op1.value);
+			sprintf(str, "%d", t->op1.value);
+			if(t->op1.kind == VecK){
+				sprintf(str, "%d[%d]", t->op1.value, t->op1.tam);
+				if(t->op1.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op1.value, t->op1.tam);
+				}
 			}
-			else if(t->op1.kind == ImmK){ //um inteiro
-				printf("(par,(%d),_,_)\n",t->op1.value);
-			}
-			else{
-				printf("(par,%d,_,_)\n",t->op1.value);
-			}
+			else if(t->op1.kind == TempK)
+				sprintf(str, "t%d", t->op1.value);
+			else if(t->op1.kind == ImmK)
+				sprintf(str, "(%d)", t->op1.value);
+			printf("(par,%s)\n",str);
 		break;
     }
 
@@ -671,17 +674,40 @@ static void genExp( TreeNode * tree)
 			 if(strcmp(t->attr.type,"Integer") == 0){
 				Operand op2 = {ImmK, t->attr.val};
 				ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
-				printf(">>>>>>>>É UM IMEDIATO\n");
 			 }//aki
 			 else{
 				//pode ser uma variavel ou uma funcao
 				if(strcmp(t->attr.type,"funcao") == 0){//é uma funcao
-					
+					cGen(t);
+					Operand op2 = {TempK, tempT};
+					ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
 				}
-				printf(">>>%s",t->attr.type);
-				cGen(t);
-				Operand op2 = {SymtabK, cgen_search_top(t->attr.name)};
-				ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
+				else{//é uma variavel
+					//cGen(t);
+					Operand op2 = {SymtabK, cgen_search_top(t->attr.name)};
+					//veriificar se é vetor ou n
+					
+					if(strcmp(t->attr.typeVar, "vector") == 0){
+						//é um vetor
+						op2.kind = VecK;
+						//o value é o mesmo, precisamos de armazenar as informacoes do content agora
+						
+						int posvec2 = t->child[0]->attr.val;
+						op2.tam = posvec2;
+						op2.type = ImmK;
+						
+						
+						if(strcmp(t->child[0]->attr.type,"Integer")!=0){
+							//o valor de dentro do [] do vetor e uma variavel
+							int posvec2 = cgen_search_top(t->child[0]->attr.name);
+							op2.tam = posvec2;
+							op2.type = SymtabK;
+						}
+						
+					}
+					ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
+				}
+				
 			 }
 		 }
 		 qt = qt+1;
@@ -689,10 +715,10 @@ static void genExp( TreeNode * tree)
 		}
 		int funcao = cgen_search_top(tree->attr.name);
 		tempT++;
-
+		op3.value = tempT;
 		Operand op1 = {TempK, funcao};
 		op2.value = qt;
-		ail_insert(ail_create(FunctionCallK, op1, op2, opn));
+		ail_insert(ail_create(FunctionCallK, op1, op2, op3));
 		
 	break;
     case IdK :
