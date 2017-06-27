@@ -103,6 +103,7 @@ void gera_assembly(){
   int reg1 = 0;
   int reg2 = 0;
   int reg3 = 0;
+  int reg4 = 0;
   while(t != NULL){
 		switch(t->aik){
 		case AddK:
@@ -202,6 +203,7 @@ void gera_assembly(){
 					//criamos um add entre esses 2 registradores e armazenamos no proprio reg1
 					AssemblyOperand op4 = {reg1,reg3, reg1};
 					asl_insert(asl_create(ADD, op4));
+					limpa_reg(reg3);
 				}
 			}
 			
@@ -218,10 +220,17 @@ void gera_assembly(){
 			}
 			else if (t->op2.kind == VecK){
 				//é um vetor
+				//falta fazer aqui
 			}
 			else{
 				//é uma variavel
-				
+				reg2 = busca_reg_livre();
+				posmem1 = search_pos_var (t->op2.value);
+				AssemblyOperand op = {reg2,decimal_binario(posmem1)};
+				asl_insert(asl_create(ADDI, op));
+				//fazemos o lw
+				AssemblyOperand op2 = {reg2, reg2};
+				asl_insert(asl_create(LW, op2));
 			}
 			
 			//criamos o store

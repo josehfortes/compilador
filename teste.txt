@@ -8,7 +8,7 @@ void output(int out)
 
 void main(void)
 {
-int a[50];
+int a;
 int b;
-a[b] = 10 + 20;
+a = b;
 }
