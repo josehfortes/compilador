@@ -6,15 +6,9 @@ void output(int out)
 {
 }
 
-int nomefunc(int a){
-	return 1;
-}
-
 void main(void)
 {
-int a;
+int a[50];
 int b;
-int c[100];
-a = c[95] + 10;
-
+a[b] = 10 + 20;
 }
