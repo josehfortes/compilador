@@ -49,11 +49,8 @@
 
  typedef struct AssemblyOperand {
      int value;
-     int flagValue;
      int value2;
-     int flagValue2;
      int value3;
-     int flagValue3;
  } AssemblyOperand;
 
  typedef struct AssemblyList{

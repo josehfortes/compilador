@@ -68,6 +68,25 @@ void limpaTemporarioReg(int ntemp){
 	limpa_reg(temporarioRegistrador[ntemp]);
 }
 
+int getVarFromMemory(int pos, int tam){
+	//temos a posicao has pos
+	//buscamos a posicao na memoria dessa variavel
+	int posmem = search_pos_var (pos);
+	//posmem é a posicao de memoria, devmeos usar um registrador para ler a memoria
+	int reg1 = busca_reg_livre();
+	posmem += tam;
+    //usamos o addi
+	AssemblyOperand op1 = {reg1,decimal_binario(posmem)};//posicao de memoria da variavel
+	asl_insert(asl_create(ADDI, op1));
+	//efetuamos um LW somando com o REG_0 e
+	AssemblyOperand op2 = {reg1, reg1};
+	asl_insert(asl_create(LW, op2));
+	//printf("LW REG_%d, MEMORY[REG_0 + %d]\n", reg, posmem);
+	//limpa_reg(reg1);
+	return reg1;
+	//pronto, o reg possui o valor que estava na memoria agr
+}
+
 int busca_reg_livre(){
 	for(int i=0;i<32;i++){
 		if(registradores[i] == 0){
@@ -89,12 +108,73 @@ void limpa_reg(int r){
 void gera_assembly(){
   AsmInstList t = ail;
   int posmem1;
-	int posmem2;
-	int reg1 = 0;
-	int reg2 = 0;
-  int regsoma;
+  int posmem2;
+  int reg1 = 0;
+  int reg2 = 0;
+  int reg3 = 0;
   while(t != NULL){
 		switch(t->aik){
+		case AddK:
+			//precisamos saber se é imediato, variavel, funcao, temporario
+			/*
+			na soma propriamente dita, só será somado dois registradores, logo, precisamos de pegar os dois numeros e armazenar em um reg
+			*/
+			
+			//inicio para a variavel 1
+			if(t->op1.kind == ImmK){
+				//é um imediato, devemos armazenar o seu valor ( em binario ) em um registrador livre
+				//buscamos um registrador livre
+				reg1 = busca_reg_livre();
+				//somamos um imediato a esse registrador
+				AssemblyOperand op1 = {reg1,decimal_binario(t->op1.value)};
+				asl_insert(asl_create(ADDI, op1));
+			}
+			else if(t->op1.kind == TempK){//é um temporario
+				reg1 = temporarioRegistrador[t->op1.value];
+			}
+			else if(t->op1.kind == VecK){
+				//é vetor =(
+				reg1 = getVarFromMemory(t->op1.value, t->op1.tam);
+			}
+			else{
+				//é variavel
+				reg1 = getVarFromMemory(t->op1.value, 0);
+			}
+			
+			//fim para a variavel 1
+		break;
+		case SubK:
+		break;
+		case MultK:
+		break;
+		case DivK:
+		break;
+		case GotoK:
+		break;
+		case LabK:
+		break;
+		case AsgK:
+		break;
+		case CmpEqK:
+		break;
+		case CmpNEqK:
+		break;
+		case CmpGK:
+		break;
+		case CmpGEqK:
+		break;
+		case CmpLK:
+		break;
+		case CmpLEqK:
+		break;
+		case FunctionCallK:
+		break;
+		case FunctionReturnK:
+		break;
+		case If_FK:
+		break;
+		case FunctionParameterK:
+		break;
 		}
     t = t->next;
   }
@@ -115,6 +195,9 @@ void print_assembly(){
       case ADD:
         printf("ADD REG_%d REG%d + REG%d\n",t->op1.value,t->op1.value2,t->op1.value3);
       break;
+	  case ADDI:
+        printf("ADDI REG_%d, %d\n",t->op1.value,t->op1.value2);
+      break;
       case SUB:
         printf("SUB REG_%d REG%d - REG%d\n",t->op1.value,t->op1.value2,t->op1.value3);
       break;
@@ -123,9 +206,6 @@ void print_assembly(){
       break;
       case DIV:
         printf("DIV REG_%d REG%d / REG%d\n",t->op1.value,t->op1.value2,t->op1.value3);
-      break;
-      case ADDI:
-        printf("ADDI REG_%d, %d\n",t->op1.value, t->op1.value2);
       break;
       case STORE:
         printf("STORE %d, REG_%d\n", t->op1.value,t->op1.value2);
@@ -144,6 +224,7 @@ void ail_print(){
 	char str[100];
 	char str2[100];
   AsmInstList t = ail;
+  printf("\n--------- CODIGO INTERMEDIARIO ---------\n");
   while(t != NULL){
     switch(t->aik){
 		case GotoK:
@@ -473,6 +554,8 @@ void ail_print(){
 
     t = t->next;
   }
+  
+  printf("------------------------------------------------------\n");
 }
 
 /* Function ail_insert inserts
@@ -678,7 +761,8 @@ static void genExp( TreeNode * tree)
 			 else{
 				//pode ser uma variavel ou uma funcao
 				if(strcmp(t->attr.type,"funcao") == 0){//é uma funcao
-					cGen(t);
+					
+					//cGen(t);
 					Operand op2 = {TempK, tempT};
 					ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
 				}
