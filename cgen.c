@@ -46,8 +46,8 @@ AssemblyList asl_create(Instruction ins, AssemblyOperand aso){
     AssemblyList as = (AssemblyList) malloc(sizeof(struct AssemblyList));
     as->ins = ins;
     as->op1 = aso;
-	as->pos = posAsl;
-	posAsl++;
+    as->pos = posAsl;
+    posAsl++;
     return as;
 }
 
@@ -55,8 +55,8 @@ AsmInstList ail_create(AsmInstKind aik, Operand op1, Operand op2, Operand op3){
     AsmInstList ai = (AsmInstList) malloc(sizeof(struct AsmInstList));
     ai->aik = aik;
     ai->op1 = op1;
-	ai->op2 = op2;
-	ai->op3 = op3;
+    ai->op2 = op2;
+    ai->op3 = op3;
     return ai;
 }
 
@@ -110,7 +110,7 @@ void gera_assembly(){
   int reg2 = 0;
   int reg3 = 0;
   int reg4 = 0;
-  
+
   while(t != NULL){
 		switch(t->aik){
 		case AsgK:
@@ -151,7 +151,7 @@ void gera_assembly(){
 					limpa_reg(reg3);
 				}
 			}
-			
+
 			//vamos ver o que a variavel ira aramzenar
 			if(t->op2.kind == ImmK){
 				//é um imediato
@@ -181,7 +181,7 @@ void gera_assembly(){
 					//fazemos um addi com o posmem2
 					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
 					asl_insert(asl_create(ADDI, op));
-					//buscamos o valor da variavel 
+					//buscamos o valor da variavel
 					reg3 = busca_reg_livre();
 					//fazemos um addi com a variavel no vetor reg3
 					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
@@ -218,7 +218,7 @@ void gera_assembly(){
 			/*
 			na soma propriamente dita, só será somado dois registradores, logo, precisamos de pegar os dois numeros e armazenar em um reg
 			*/
-			
+
 			//inicio para a variavel 1
 			if(t->op1.kind == ImmK){
 				//é um imediato, devemos armazenar o seu valor ( em binario ) em um registrador livre
@@ -267,14 +267,14 @@ void gera_assembly(){
 			asl_insert(asl_create(ADD, op3));
 			limpa_reg(reg1);
 			limpa_reg(reg2);
-			
+
 		break;
 		case SubK:
 		//precisamos saber se é imediato, variavel, funcao, temporario
 			/*
 			na soma propriamente dita, só será somado dois registradores, logo, precisamos de pegar os dois numeros e armazenar em um reg
 			*/
-			
+
 			//inicio para a variavel 1
 			if(t->op1.kind == ImmK){
 				//é um imediato, devemos armazenar o seu valor ( em binario ) em um registrador livre
@@ -329,7 +329,7 @@ void gera_assembly(){
 			/*
 			na soma propriamente dita, só será somado dois registradores, logo, precisamos de pegar os dois numeros e armazenar em um reg
 			*/
-			
+
 			//inicio para a variavel 1
 			if(t->op1.kind == ImmK){
 				//é um imediato, devemos armazenar o seu valor ( em binario ) em um registrador livre
@@ -377,7 +377,7 @@ void gera_assembly(){
 			op.value = reg1;
 			op.value2 = reg2;
 			op.value3 = reg3;
-			
+
 			asl_insert(asl_create(MULT, op));
 			limpa_reg(reg1);
 			limpa_reg(reg2);
@@ -387,7 +387,7 @@ void gera_assembly(){
 			/*
 			na soma propriamente dita, só será somado dois registradores, logo, precisamos de pegar os dois numeros e armazenar em um reg
 			*/
-			
+
 			//inicio para a variavel 1
 			if(t->op1.kind == ImmK){
 				//é um imediato, devemos armazenar o seu valor ( em binario ) em um registrador livre
@@ -435,11 +435,11 @@ void gera_assembly(){
 			op.value = reg1;
 			op.value2 = reg2;
 			op.value3 = reg3;
-			
+
 			asl_insert(asl_create(DIV, op));
 			limpa_reg(reg1);
 			limpa_reg(reg2);
-			
+
 		break;
 		case CmpEqK:
 			reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
@@ -484,7 +484,7 @@ void gera_assembly(){
 			op.value = reg1;
 			op.value2 = reg1;
 			asl_insert(asl_create(LW, op));
-			
+
 			//vamos ver o que a variavel ira aramzenar
 			if(t->op2.kind == ImmK){
 				//é um imediato
@@ -514,7 +514,7 @@ void gera_assembly(){
 					//fazemos um addi com o posmem2
 					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
 					asl_insert(asl_create(ADDI, op));
-					//buscamos o valor da variavel 
+					//buscamos o valor da variavel
 					reg3 = busca_reg_livre();
 					//fazemos um addi com a variavel no vetor reg3
 					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
@@ -539,8 +539,8 @@ void gera_assembly(){
 				AssemblyOperand op2 = {reg2, reg2};
 				asl_insert(asl_create(LW, op2));
 			}
-			
-			
+
+
 			//criamos a comparacao e se for verdade pula 2 casas
 			op.value = reg1;
 			op.value2 = reg2;
@@ -593,7 +593,7 @@ void gera_assembly(){
 			op.value = reg1;
 			op.value2 = reg1;
 			asl_insert(asl_create(LW, op));
-			
+
 			//vamos ver o que a variavel ira aramzenar
 			if(t->op2.kind == ImmK){
 				//é um imediato
@@ -623,7 +623,7 @@ void gera_assembly(){
 					//fazemos um addi com o posmem2
 					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
 					asl_insert(asl_create(ADDI, op));
-					//buscamos o valor da variavel 
+					//buscamos o valor da variavel
 					reg3 = busca_reg_livre();
 					//fazemos um addi com a variavel no vetor reg3
 					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
@@ -648,8 +648,8 @@ void gera_assembly(){
 				AssemblyOperand op2 = {reg2, reg2};
 				asl_insert(asl_create(LW, op2));
 			}
-			
-			
+
+
 			//criamos a comparacao e se for verdade pula 2 casas
 			op.value = reg1;
 			op.value2 = reg2;
@@ -702,7 +702,7 @@ void gera_assembly(){
 			op.value = reg1;
 			op.value2 = reg1;
 			asl_insert(asl_create(LW, op));
-			
+
 			//vamos ver o que a variavel ira aramzenar
 			if(t->op2.kind == ImmK){
 				//é um imediato
@@ -732,7 +732,7 @@ void gera_assembly(){
 					//fazemos um addi com o posmem2
 					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
 					asl_insert(asl_create(ADDI, op));
-					//buscamos o valor da variavel 
+					//buscamos o valor da variavel
 					reg3 = busca_reg_livre();
 					//fazemos um addi com a variavel no vetor reg3
 					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
@@ -757,8 +757,8 @@ void gera_assembly(){
 				AssemblyOperand op2 = {reg2, reg2};
 				asl_insert(asl_create(LW, op2));
 			}
-			
-			
+
+
 			//criamos a comparacao e se for verdade pula 2 casas
 			op.value = reg1;
 			op.value2 = reg2;
@@ -811,7 +811,7 @@ void gera_assembly(){
 			op.value = reg1;
 			op.value2 = reg1;
 			asl_insert(asl_create(LW, op));
-			
+
 			//vamos ver o que a variavel ira aramzenar
 			if(t->op2.kind == ImmK){
 				//é um imediato
@@ -841,7 +841,7 @@ void gera_assembly(){
 					//fazemos um addi com o posmem2
 					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
 					asl_insert(asl_create(ADDI, op));
-					//buscamos o valor da variavel 
+					//buscamos o valor da variavel
 					reg3 = busca_reg_livre();
 					//fazemos um addi com a variavel no vetor reg3
 					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
@@ -866,8 +866,8 @@ void gera_assembly(){
 				AssemblyOperand op2 = {reg2, reg2};
 				asl_insert(asl_create(LW, op2));
 			}
-			
-			
+
+
 			//criamos a comparacao e se for verdade pula 2 casas
 			op.value = reg1;
 			op.value2 = reg2;
@@ -920,7 +920,7 @@ void gera_assembly(){
 			op.value = reg1;
 			op.value2 = reg1;
 			asl_insert(asl_create(LW, op));
-			
+
 			//vamos ver o que a variavel ira aramzenar
 			if(t->op2.kind == ImmK){
 				//é um imediato
@@ -950,7 +950,7 @@ void gera_assembly(){
 					//fazemos um addi com o posmem2
 					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
 					asl_insert(asl_create(ADDI, op));
-					//buscamos o valor da variavel 
+					//buscamos o valor da variavel
 					reg3 = busca_reg_livre();
 					//fazemos um addi com a variavel no vetor reg3
 					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
@@ -975,8 +975,8 @@ void gera_assembly(){
 				AssemblyOperand op2 = {reg2, reg2};
 				asl_insert(asl_create(LW, op2));
 			}
-			
-			
+
+
 			//criamos a comparacao e se for verdade pula 2 casas
 			op.value = reg1;
 			op.value2 = reg2;
@@ -990,7 +990,7 @@ void gera_assembly(){
 			limpa_reg(reg1);
 			limpa_reg(reg2);
 		break;
-		
+
 		case CmpLEqK:
 		break;
 		case LabK:
@@ -1002,7 +1002,7 @@ void gera_assembly(){
 			asl_insert(asl_create(GOTO, op));
 		break;
 		case If_FK:
-			//criamos o goto que vai virar jump pra label 
+			//criamos o goto que vai virar jump pra label
 			op.value = t->op2.value;
 			asl_insert(asl_create(GOTO, op));
 		break;
@@ -1112,14 +1112,14 @@ void ail_print(){
 				sprintf(str2, "t%d", t->op2.value);
 			else if (t->op2.kind == ImmK)
 				sprintf(str2, "(%d)", t->op2.value);
-			
+
 			else if (t->op2.kind == VecK){
-				
+
 				sprintf(str2, "%d[%d]", t->op2.value, t->op2.tam);
 				if(t->op2.type == ImmK)
 					sprintf(str2, "%d[(%d)]", t->op2.value, t->op2.tam);
 			}
-			
+
 			printf("(Asg,%s,%s,_)\n",str,str2);
 		break;
 		case CmpEqK:
@@ -1143,7 +1143,7 @@ void ail_print(){
 					sprintf(str, "%d[(%d)]", t->op2.value, t->op2.tam);
 				}
 			}
-			
+
 			printf("(Eq,%s,%s,t%d)\n",str,str2,t->op3.value);
 		break;
 		case CmpNEqK:
@@ -1167,7 +1167,7 @@ void ail_print(){
 					sprintf(str, "%d[(%d)]", t->op2.value, t->op2.tam);
 				}
 			}
-			
+
 			printf("(Neq,%s,%s,t%d)\n",str,str2,t->op3.value);
 		break;
 		case CmpGK:
@@ -1191,7 +1191,7 @@ void ail_print(){
 					sprintf(str, "%d[(%d)]", t->op2.value, t->op2.tam);
 				}
 			}
-			
+
 			printf("(Gt,%s,%s,t%d)\n",str,str2,t->op3.value);
 		break;
 		case CmpGEqK:
@@ -1215,7 +1215,7 @@ void ail_print(){
 					sprintf(str, "%d[(%d)]", t->op2.value, t->op2.tam);
 				}
 			}
-			
+
 			printf("(Get,%s,%s,t%d)\n",str,str2,t->op3.value);
 		break;
 		case CmpLK:
@@ -1239,7 +1239,7 @@ void ail_print(){
 					sprintf(str, "%d[(%d)]", t->op2.value, t->op2.tam);
 				}
 			}
-			
+
 			printf("(Lt,%s,%s,t%d)\n",str,str2,t->op3.value);
 		break;
 		case CmpLEqK:
@@ -1263,7 +1263,7 @@ void ail_print(){
 					sprintf(str, "%d[(%d)]", t->op2.value, t->op2.tam);
 				}
 			}
-			
+
 			printf("(Let,%s,%s,t%d)\n",str,str2,t->op3.value);
 		break;
 		case AddK:
@@ -1280,7 +1280,7 @@ void ail_print(){
 				sprintf(str, "(%d)", t->op1.value);
 			else if(t->op1.kind == TempK)
 				sprintf(str, "t%d", t->op1.value);
-			
+
 			//verificamos o que é o op2
 			if(t->op2.kind == VecK){
 				sprintf(str2, "%d[%d]", t->op2.value, t->op2.tam);
@@ -1308,7 +1308,7 @@ void ail_print(){
 				sprintf(str, "(%d)", t->op1.value);
 			else if(t->op1.kind == TempK)
 				sprintf(str, "t%d", t->op1.value);
-			
+
 			//verificamos o que é o op2
 			if(t->op2.kind == VecK){
 				sprintf(str2, "%d[%d]", t->op2.value, t->op2.tam);
@@ -1336,7 +1336,7 @@ void ail_print(){
 				sprintf(str, "(%d)", t->op1.value);
 			else if(t->op1.kind == TempK)
 				sprintf(str, "t%d", t->op1.value);
-			
+
 			//verificamos o que é o op2
 			if(t->op2.kind == VecK){
 				sprintf(str2, "%d[%d]", t->op2.value, t->op2.tam);
@@ -1364,7 +1364,7 @@ void ail_print(){
 				sprintf(str, "(%d)", t->op1.value);
 			else if(t->op1.kind == TempK)
 				sprintf(str, "t%d", t->op1.value);
-			
+
 			//verificamos o que é o op2
 			if(t->op2.kind == VecK){
 				sprintf(str2, "%d[%d]", t->op2.value, t->op2.tam);
@@ -1416,7 +1416,7 @@ void ail_print(){
 
     t = t->next;
   }
-  
+
   printf("------------------------------------------------------\n");
 }
 
@@ -1477,7 +1477,7 @@ static void genStmt( TreeNode * tree)
  		else if(strcmp(tree->child[0]->attr.type, "id") == 0){
  			Operand op2 = {SymtabK, cgen_search_top(tree->child[0]->attr.name)};
  			ail_insert(ail_create(FunctionReturnK, op2, opn, opn)); //FunctionReturnK para retorno de variavel
- 
+
  		}
  		else if(strcmp(tree->child[0]->attr.type, "funcao") == 0){
  			//é necessario acessar o ativk
@@ -1529,12 +1529,12 @@ static void genStmt( TreeNode * tree)
 	break;
     case IfK:
 		printf("entrou no IfK\n");
-		
+
 		int label1;
  		int label2;
  		//chama a expressao
  		cGen(tree->child[0]);
- 
+
  		//cria o IF_F para a label 1
  		tempL++;
  		label1 = tempL;
@@ -1543,8 +1543,8 @@ static void genStmt( TreeNode * tree)
  		ail_insert(ail_create(If_FK, op6, op2, opn)); //LabK para label
  		//chama o statement
  		cGen(tree->child[1]);
- 
- 
+
+
  		if(tree->child[2] != NULL){
  			//else do if
  			//precisamos de colocar um goto Lx para o fim do if não entrar no else
@@ -1553,8 +1553,8 @@ static void genStmt( TreeNode * tree)
  			label2 = tempL;
  			Operand op4 = {TempK, label2};
  			ail_insert(ail_create(GotoK, op4, opn, opn)); //LabK para label
- 
- 
+
+
  			//cria a label para o else do if (if_f)
  			Operand op3 = {TempK, label1};
  			ail_insert(ail_create(LabK, op3, opn, opn));
@@ -1589,12 +1589,12 @@ static Operand opn;
 static Operand op1;
 static Operand op2;
 static Operand op3;
-  
+
 /* Procedure genExp generates code at an expression node */
 static void genExp( TreeNode * tree)
 {
   AsmInstKind Op1;
-  
+
   switch (tree->kind.exp) {
 	case ConstK :
 		printf("entrou no constK\n");
@@ -1623,7 +1623,7 @@ static void genExp( TreeNode * tree)
 			 else{
 				//pode ser uma variavel ou uma funcao
 				if(strcmp(t->attr.type,"funcao") == 0){//é uma funcao
-					
+
 					//cGen(t);
 					Operand op2 = {TempK, tempT};
 					ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
@@ -1632,28 +1632,28 @@ static void genExp( TreeNode * tree)
 					//cGen(t);
 					Operand op2 = {SymtabK, cgen_search_top(t->attr.name)};
 					//veriificar se é vetor ou n
-					
+
 					if(strcmp(t->attr.typeVar, "vector") == 0){
 						//é um vetor
 						op2.kind = VecK;
 						//o value é o mesmo, precisamos de armazenar as informacoes do content agora
-						
+
 						int posvec2 = t->child[0]->attr.val;
 						op2.tam = posvec2;
 						op2.type = ImmK;
-						
-						
+
+
 						if(strcmp(t->child[0]->attr.type,"Integer")!=0){
 							//o valor de dentro do [] do vetor e uma variavel
 							int posvec2 = cgen_search_top(t->child[0]->attr.name);
 							op2.tam = posvec2;
 							op2.type = SymtabK;
 						}
-						
+
 					}
 					ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
 				}
-				
+
 			 }
 		 }
 		 qt = qt+1;
@@ -1665,7 +1665,7 @@ static void genExp( TreeNode * tree)
 		Operand op1 = {TempK, funcao};
 		op2.value = qt;
 		ail_insert(ail_create(FunctionCallK, op1, op2, op3));
-		
+
 	break;
     case IdK :
 		if(strcmp(tree->attr.type,"chamadaFuncao") == 0){
@@ -1685,15 +1685,15 @@ static void genExp( TreeNode * tree)
 	case OpK:
 		printf("entrou no OpK\n");
 		//todas as operações
-		
+
 		//verifica se é um assign
 		if(tree->attr.op == EQ){//é um assign, iremos no final criar o asgk
-		
+
 			int var1 = cgen_search_top(tree->child[0]->attr.name);//buscando a variavel que vai receber o assign
 			//pode ser variavel ou vetor
 			op1.kind = VarAsgK;
 			op1.value = var1;
-			
+
 			if(strcmp(tree->child[0]->attr.typeVar, "vector") == 0){
 				int posvec = tree->child[0]->child[0]->attr.val;
 				//a variavel é um vetor
@@ -1715,7 +1715,7 @@ static void genExp( TreeNode * tree)
 			/*
 			* ele pode ser um TempK, um ImmK um SymtabK ou um VecK
 			*/
-			
+
 			if(tree->child[1]->attr.type == NULL){
 				//é um opk
 				cGen(tree->child[1]);
@@ -1723,7 +1723,7 @@ static void genExp( TreeNode * tree)
 				op2.value = tempT;
 			}
 			else{
-				
+
 				//é uma variavel ou uma chamada de funcao ou um inteiro
 				if(strcmp(tree->child[1]->attr.type,"Integer")==0){
 					//é um inteiro
@@ -1742,19 +1742,19 @@ static void genExp( TreeNode * tree)
 							//é um vetor
 							op2.kind = VecK;
 							//o value é o mesmo, precisamos de armazenar as informacoes do content agora
-							
+
 							int posvec2 = tree->child[1]->child[0]->attr.val;
 							op2.tam = posvec2;
 							op2.type = ImmK;
-							
-							
+
+
 							if(strcmp(tree->child[1]->child[0]->attr.type,"Integer")!=0){
 								//o valor de dentro do [] do vetor e uma variavel
 								int posvec2 = cgen_search_top(tree->child[1]->child[0]->attr.name);
 								op2.tam = posvec2;
 								op2.type = SymtabK;
 							}
-							
+
 						}
 					}
 					else{
@@ -1771,7 +1771,7 @@ static void genExp( TreeNode * tree)
 		} //fim do EQ
 		else if ((tree->attr.op == PLUS) || (tree->attr.op == MINUS) || (tree->attr.op == TIMES) || (tree->attr.op == OVER)){
 			//é uma operação
-			
+
 			//tratando o primeiro valor da operaca
 			cGen(tree->child[0]);
 			//assumimos que os valores sao imediatos
@@ -1802,7 +1802,7 @@ static void genExp( TreeNode * tree)
 				}
 			}
 			//terminamos para a variavel 1, fazemos o mesmo pra 2
-			
+
 			cGen(tree->child[1]);
 			//assumimos que os valores sao imediatos
 			op2.kind = ImmK;
@@ -1831,7 +1831,7 @@ static void genExp( TreeNode * tree)
 					}
 				}
 			}
-			
+
 			//Op1 armazena qual é a operação
 			if(tree->attr.op == PLUS){
 				Op1 = AddK;
@@ -1850,7 +1850,7 @@ static void genExp( TreeNode * tree)
 			op3.value = tempT;
 			//criamos na lista
 			ail_insert(ail_create(Op1,op1,op2,op3));
-			
+
 		}
 		else{
 			//comparacoes
@@ -1910,19 +1910,19 @@ static void genExp( TreeNode * tree)
 							//é um vetor
 							op2.kind = VecK;
 							//o value é o mesmo, precisamos de armazenar as informacoes do content agora
-							
+
 							int posvec2 = tree->child[1]->child[0]->attr.val;
 							op2.tam = posvec2;
 							op2.type = ImmK;
-							
-							
+
+
 							if(strcmp(tree->child[1]->child[0]->attr.type,"Integer")!=0){
 								//o valor de dentro do [] do vetor e uma variavel
 								int posvec2 = cgen_search_top(tree->child[1]->child[0]->attr.name);
 								op2.tam = posvec2;
 								op2.type = SymtabK;
 							}
-							
+
 						}
 					}
 					else{
@@ -1939,10 +1939,10 @@ static void genExp( TreeNode * tree)
 			op3.value = tempT;
 			//criamos na lista
 			ail_insert(ail_create(Op1,op1,op2,op3));
-			
+
 		}
-		
-		
+
+
 	break;
   }
 } /* genExp */

@@ -23,7 +23,7 @@ static int location = 0;
  * it applies preProc in preorder and postProc
  * in postorder to tree pointed to by t
  */
- 
+
 
 
 char* Str( ExpType type ) {
@@ -173,7 +173,7 @@ static void insertNode( TreeNode * t)
         else{
             //insere a primeira variavel na tabela
             t->attr.type = "Variável";
-            st_insert(t->child[0]->attr.name,t->attr.name,t->lineno,addLocation(),t);
+            st_insert(t->child[0]->attr.name,t->attr.name,t->lineno,declaraVariavel(),t);
         }
 	break;
 	case ReturnK:
@@ -245,7 +245,7 @@ static void insertNode( TreeNode * t)
             //declaraçao de variavel, tipo: t->attr.type nome: $t->attr.name
             //variavel pode ser do tipo id,
             if (strcmp(t->attr.type, "id") == 0) {
-				
+
                 if (cgen_search_top(t->attr.name) != -1) { //variavel ja existe, basta adicionar na tabela
 					st_add_lineno(t->attr.name, t->lineno); //adiciona a variavel na tabela
 				}
