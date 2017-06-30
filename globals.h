@@ -80,12 +80,15 @@ typedef struct treeNode
      NodeKind nodekind;
      
      union { StmtKind stmt; ExpKind exp;} kind;
-     struct { TokenType op;
-             int val;
-             char * name; 
+     struct {
+		 TokenType op;
+		 int val;
+		 char * name; 
 	     char * type;
-	     char * typeVar} attr;
-     struct ScopeRec * scope;
+	     char * typeVar;
+		 } attr;
+	  int mempos;
+     struct Scope * scope;
      ExpType type; /* for type checking of exps */
    } TreeNode;
 

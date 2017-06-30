@@ -16,6 +16,7 @@
 /* the list of line numbers of the source 
  * code in which a variable is referenced
  */
+char * nomeEscopoAtual;
 typedef struct LineListRec
    { int lineno;
      struct LineListRec * next;
@@ -33,8 +34,10 @@ typedef struct BucketListRec
      LineList lines;
      TreeNode * treeNode;
      int memloc ; /* memory location for variable */
+	 int nScope;
      struct BucketListRec * next;
    } * BucketList;
+   
 
 typedef struct ScopeRec
    { char * funcName;

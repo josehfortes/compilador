@@ -22,6 +22,8 @@ static int tmpOffset = 0;
 Operand OpGlobal;
 int tempT = 0;
 int tempL = 0;
+int escopoAtual;
+
 
 /* Function ail_initialize initializes
  * the assembly instruction list
@@ -65,7 +67,7 @@ static int registradores[32];
 int getVarFromMemory(int pos, int tam){
 	//temos a posicao has pos
 	//buscamos a posicao na memoria dessa variavel
-	int posmem = search_pos_var (pos);
+	int posmem = pos;
 	//posmem é a posicao de memoria, devmeos usar um registrador para ler a memoria
 	int reg1 = busca_reg_livre();
 	posmem += tam;
@@ -116,7 +118,8 @@ void gera_assembly(){
 		case AsgK:
 			reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
 			reg2 = busca_reg_livre();
-			posmem1 = search_pos_var (t->op1.value);
+			
+			posmem1 = t->op1.value;
 			//pode ser uma variavel ou um vetor
 			if(t->op1.kind == VarAsgK){
 				//é uma variavel
@@ -132,7 +135,7 @@ void gera_assembly(){
 				}
 				else{
 					//o vetor possui variavel como valor da posicao ex.:v[i]
-					posmem2 = search_pos_var (t->op1.tam);
+					posmem2 = t->op1.tam;
 					//posmem2 representa a posicao da variavel, devemos dar um LW em um registrador REG3 esse valor
 					reg3 = busca_reg_livre();
 					//fazemos um addi no reg3 com o posmem2
@@ -167,7 +170,7 @@ void gera_assembly(){
 				//é um vetor
 				//a posicao do vetor é t->op2.value, precisamos de somar esse valor com a posicao do tamanho
 				//precisamos verificar se o tamanho do vetor é um imediato ou variavel
-				posmem2 = search_pos_var (t->op2.value);
+				posmem2 = t->op2.value;
 				if(t->op2.type == ImmK){
 					posmem2 += t->op2.tam;
 					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
@@ -184,7 +187,7 @@ void gera_assembly(){
 					//buscamos o valor da variavel
 					reg3 = busca_reg_livre();
 					//fazemos um addi com a variavel no vetor reg3
-					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
+					AssemblyOperand op3 = {reg3,decimal_binario(t->op2.tam)};
 					asl_insert(asl_create(ADDI, op3));
 					//fazemos o lw
 					AssemblyOperand op2 = {reg3, reg3};
@@ -199,7 +202,7 @@ void gera_assembly(){
 			else{
 				//é uma variavel
 				reg2 = busca_reg_livre();
-				posmem1 = search_pos_var (t->op2.value);
+				posmem1 = t->op2.value;
 				AssemblyOperand op = {reg2,decimal_binario(posmem1)};
 				asl_insert(asl_create(ADDI, op));
 				//fazemos o lw
@@ -444,7 +447,7 @@ void gera_assembly(){
 		case CmpEqK:
 			reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
 			reg2 = busca_reg_livre();
-			posmem1 = search_pos_var (t->op1.value);
+			posmem1 = t->op1.value;
 			//pode ser uma variavel ou um vetor
 
 			if(t->op1.kind == VecK){
@@ -456,7 +459,7 @@ void gera_assembly(){
 				}
 				else{
 					//o vetor possui variavel como valor da posicao ex.:v[i]
-					posmem2 = search_pos_var (t->op1.tam);
+					posmem2 = t->op1.tam;
 					//posmem2 representa a posicao da variavel, devemos dar um LW em um registrador REG3 esse valor
 					reg3 = busca_reg_livre();
 					//fazemos um addi no reg3 com o posmem2
@@ -500,7 +503,7 @@ void gera_assembly(){
 				//é um vetor
 				//a posicao do vetor é t->op2.value, precisamos de somar esse valor com a posicao do tamanho
 				//precisamos verificar se o tamanho do vetor é um imediato ou variavel
-				posmem2 = search_pos_var (t->op2.value);
+				posmem2 = t->op2.value;
 				if(t->op2.type == ImmK){
 					posmem2 += t->op2.tam;
 					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
@@ -517,7 +520,7 @@ void gera_assembly(){
 					//buscamos o valor da variavel
 					reg3 = busca_reg_livre();
 					//fazemos um addi com a variavel no vetor reg3
-					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
+					AssemblyOperand op3 = {reg3,decimal_binario(t->op2.tam)};
 					asl_insert(asl_create(ADDI, op3));
 					//fazemos o lw
 					AssemblyOperand op2 = {reg3, reg3};
@@ -532,7 +535,7 @@ void gera_assembly(){
 			else{
 				//é uma variavel
 				reg2 = busca_reg_livre();
-				posmem1 = search_pos_var (t->op2.value);
+				posmem1 = t->op2.value;
 				AssemblyOperand op = {reg2,decimal_binario(posmem1)};
 				asl_insert(asl_create(ADDI, op));
 				//fazemos o lw
@@ -553,7 +556,7 @@ void gera_assembly(){
 		case CmpNEqK:
 			reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
 			reg2 = busca_reg_livre();
-			posmem1 = search_pos_var (t->op1.value);
+			posmem1 = t->op1.value;
 			//pode ser uma variavel ou um vetor
 
 			if(t->op1.kind == VecK){
@@ -565,7 +568,7 @@ void gera_assembly(){
 				}
 				else{
 					//o vetor possui variavel como valor da posicao ex.:v[i]
-					posmem2 = search_pos_var (t->op1.tam);
+					posmem2 = t->op1.tam;
 					//posmem2 representa a posicao da variavel, devemos dar um LW em um registrador REG3 esse valor
 					reg3 = busca_reg_livre();
 					//fazemos um addi no reg3 com o posmem2
@@ -609,7 +612,7 @@ void gera_assembly(){
 				//é um vetor
 				//a posicao do vetor é t->op2.value, precisamos de somar esse valor com a posicao do tamanho
 				//precisamos verificar se o tamanho do vetor é um imediato ou variavel
-				posmem2 = search_pos_var (t->op2.value);
+				posmem2 = t->op2.value;
 				if(t->op2.type == ImmK){
 					posmem2 += t->op2.tam;
 					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
@@ -626,7 +629,7 @@ void gera_assembly(){
 					//buscamos o valor da variavel
 					reg3 = busca_reg_livre();
 					//fazemos um addi com a variavel no vetor reg3
-					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
+					AssemblyOperand op3 = {reg3,decimal_binario(t->op2.tam)};
 					asl_insert(asl_create(ADDI, op3));
 					//fazemos o lw
 					AssemblyOperand op2 = {reg3, reg3};
@@ -641,7 +644,7 @@ void gera_assembly(){
 			else{
 				//é uma variavel
 				reg2 = busca_reg_livre();
-				posmem1 = search_pos_var (t->op2.value);
+				posmem1 = t->op2.value;
 				AssemblyOperand op = {reg2,decimal_binario(posmem1)};
 				asl_insert(asl_create(ADDI, op));
 				//fazemos o lw
@@ -662,7 +665,7 @@ void gera_assembly(){
 		case CmpGK:
 			reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
 			reg2 = busca_reg_livre();
-			posmem1 = search_pos_var (t->op1.value);
+			posmem1 = t->op1.value;
 			//pode ser uma variavel ou um vetor
 
 			if(t->op1.kind == VecK){
@@ -674,7 +677,7 @@ void gera_assembly(){
 				}
 				else{
 					//o vetor possui variavel como valor da posicao ex.:v[i]
-					posmem2 = search_pos_var (t->op1.tam);
+					posmem2 = t->op1.tam;
 					//posmem2 representa a posicao da variavel, devemos dar um LW em um registrador REG3 esse valor
 					reg3 = busca_reg_livre();
 					//fazemos um addi no reg3 com o posmem2
@@ -718,7 +721,7 @@ void gera_assembly(){
 				//é um vetor
 				//a posicao do vetor é t->op2.value, precisamos de somar esse valor com a posicao do tamanho
 				//precisamos verificar se o tamanho do vetor é um imediato ou variavel
-				posmem2 = search_pos_var (t->op2.value);
+				posmem2 = t->op2.value;
 				if(t->op2.type == ImmK){
 					posmem2 += t->op2.tam;
 					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
@@ -735,7 +738,7 @@ void gera_assembly(){
 					//buscamos o valor da variavel
 					reg3 = busca_reg_livre();
 					//fazemos um addi com a variavel no vetor reg3
-					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
+					AssemblyOperand op3 = {reg3,decimal_binario(t->op2.tam)};
 					asl_insert(asl_create(ADDI, op3));
 					//fazemos o lw
 					AssemblyOperand op2 = {reg3, reg3};
@@ -750,7 +753,7 @@ void gera_assembly(){
 			else{
 				//é uma variavel
 				reg2 = busca_reg_livre();
-				posmem1 = search_pos_var (t->op2.value);
+				posmem1 = t->op2.value;
 				AssemblyOperand op = {reg2,decimal_binario(posmem1)};
 				asl_insert(asl_create(ADDI, op));
 				//fazemos o lw
@@ -771,7 +774,7 @@ void gera_assembly(){
 		case CmpLK:
 		reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
 			reg2 = busca_reg_livre();
-			posmem1 = search_pos_var (t->op1.value);
+			posmem1 = t->op1.value;
 			//pode ser uma variavel ou um vetor
 
 			if(t->op1.kind == VecK){
@@ -783,7 +786,7 @@ void gera_assembly(){
 				}
 				else{
 					//o vetor possui variavel como valor da posicao ex.:v[i]
-					posmem2 = search_pos_var (t->op1.tam);
+					posmem2 = t->op1.tam;
 					//posmem2 representa a posicao da variavel, devemos dar um LW em um registrador REG3 esse valor
 					reg3 = busca_reg_livre();
 					//fazemos um addi no reg3 com o posmem2
@@ -827,7 +830,7 @@ void gera_assembly(){
 				//é um vetor
 				//a posicao do vetor é t->op2.value, precisamos de somar esse valor com a posicao do tamanho
 				//precisamos verificar se o tamanho do vetor é um imediato ou variavel
-				posmem2 = search_pos_var (t->op2.value);
+				posmem2 = t->op2.value;
 				if(t->op2.type == ImmK){
 					posmem2 += t->op2.tam;
 					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
@@ -844,7 +847,7 @@ void gera_assembly(){
 					//buscamos o valor da variavel
 					reg3 = busca_reg_livre();
 					//fazemos um addi com a variavel no vetor reg3
-					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
+					AssemblyOperand op3 = {reg3,decimal_binario(t->op2.tam)};
 					asl_insert(asl_create(ADDI, op3));
 					//fazemos o lw
 					AssemblyOperand op2 = {reg3, reg3};
@@ -859,7 +862,7 @@ void gera_assembly(){
 			else{
 				//é uma variavel
 				reg2 = busca_reg_livre();
-				posmem1 = search_pos_var (t->op2.value);
+				posmem1 = t->op2.value;
 				AssemblyOperand op = {reg2,decimal_binario(posmem1)};
 				asl_insert(asl_create(ADDI, op));
 				//fazemos o lw
@@ -880,7 +883,7 @@ void gera_assembly(){
 		case CmpGEqK:
 		reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
 			reg2 = busca_reg_livre();
-			posmem1 = search_pos_var (t->op1.value);
+			posmem1 = t->op1.value;
 			//pode ser uma variavel ou um vetor
 
 			if(t->op1.kind == VecK){
@@ -892,7 +895,7 @@ void gera_assembly(){
 				}
 				else{
 					//o vetor possui variavel como valor da posicao ex.:v[i]
-					posmem2 = search_pos_var (t->op1.tam);
+					posmem2 = t->op1.tam;
 					//posmem2 representa a posicao da variavel, devemos dar um LW em um registrador REG3 esse valor
 					reg3 = busca_reg_livre();
 					//fazemos um addi no reg3 com o posmem2
@@ -936,7 +939,7 @@ void gera_assembly(){
 				//é um vetor
 				//a posicao do vetor é t->op2.value, precisamos de somar esse valor com a posicao do tamanho
 				//precisamos verificar se o tamanho do vetor é um imediato ou variavel
-				posmem2 = search_pos_var (t->op2.value);
+				posmem2 = t->op2.value;
 				if(t->op2.type == ImmK){
 					posmem2 += t->op2.tam;
 					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
@@ -953,7 +956,7 @@ void gera_assembly(){
 					//buscamos o valor da variavel
 					reg3 = busca_reg_livre();
 					//fazemos um addi com a variavel no vetor reg3
-					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
+					AssemblyOperand op3 = {reg3,decimal_binario(t->op2.tam)};
 					asl_insert(asl_create(ADDI, op3));
 					//fazemos o lw
 					AssemblyOperand op2 = {reg3, reg3};
@@ -968,7 +971,7 @@ void gera_assembly(){
 			else{
 				//é uma variavel
 				reg2 = busca_reg_livre();
-				posmem1 = search_pos_var (t->op2.value);
+				posmem1 = t->op2.value;
 				AssemblyOperand op = {reg2,decimal_binario(posmem1)};
 				asl_insert(asl_create(ADDI, op));
 				//fazemos o lw
@@ -1475,7 +1478,7 @@ static void genStmt( TreeNode * tree)
  			ail_insert(ail_create(FunctionReturnK, op2, opn, opn)); //FunctionReturnK para retorno de inteiro
  		}
  		else if(strcmp(tree->child[0]->attr.type, "id") == 0){
- 			Operand op2 = {SymtabK, cgen_search_top(tree->child[0]->attr.name)};
+ 			Operand op2 = {SymtabK, buscaEscopo(tree->child[0]->attr.name)};
  			ail_insert(ail_create(FunctionReturnK, op2, opn, opn)); //FunctionReturnK para retorno de variavel
 
  		}
@@ -1577,6 +1580,8 @@ static void genStmt( TreeNode * tree)
     case FuncaoK:
 		printf("entrou no FuncaoK\n");
         pos = cgen_search_top(tree->child[0]->attr.name);
+		//akijh
+		nomeEscopoAtual = tree->child[0]->attr.name;
         Operand op1 = {SymtabK, pos};
         ail_insert(ail_create(LabK,op1,opn,opn)); //LabK para label
 		//chama o cgen novamente para os filhos da esquerda e direita
@@ -1630,7 +1635,7 @@ static void genExp( TreeNode * tree)
 				}
 				else{//é uma variavel
 					//cGen(t);
-					Operand op2 = {SymtabK, cgen_search_top(t->attr.name)};
+					Operand op2 = {SymtabK, buscaEscopo(t->attr.name)};
 					//veriificar se é vetor ou n
 
 					if(strcmp(t->attr.typeVar, "vector") == 0){
@@ -1645,7 +1650,7 @@ static void genExp( TreeNode * tree)
 
 						if(strcmp(t->child[0]->attr.type,"Integer")!=0){
 							//o valor de dentro do [] do vetor e uma variavel
-							int posvec2 = cgen_search_top(t->child[0]->attr.name);
+							int posvec2 = buscaEscopo(t->child[0]->attr.name);
 							op2.tam = posvec2;
 							op2.type = SymtabK;
 						}
@@ -1670,7 +1675,6 @@ static void genExp( TreeNode * tree)
     case IdK :
 		if(strcmp(tree->attr.type,"chamadaFuncao") == 0){
 			//chamada de funcao void
-			//printf("entrou no funcao: %d \n",cgen_search_top(tree->attr.name));
 			op1.value = cgen_search_top(tree->attr.name);
 			//precisamos buscar quantos parametros a funcao temp
 			op2.value = 0;
@@ -1679,7 +1683,7 @@ static void genExp( TreeNode * tree)
 			ail_insert(ail_create(FunctionCallK, op1, op2, op3));
 		}
 		else{
-			OpGlobal.value = cgen_search_top(tree->attr.name);
+			OpGlobal.value = buscaEscopo(tree->attr.name);
 		}
     break; /* IdK */
 	case OpK:
@@ -1689,7 +1693,7 @@ static void genExp( TreeNode * tree)
 		//verifica se é um assign
 		if(tree->attr.op == EQ){//é um assign, iremos no final criar o asgk
 
-			int var1 = cgen_search_top(tree->child[0]->attr.name);//buscando a variavel que vai receber o assign
+			int var1 = buscaEscopo(tree->child[0]->attr.name);//buscando a variavel que vai receber o assign
 			//pode ser variavel ou vetor
 			op1.kind = VarAsgK;
 			op1.value = var1;
@@ -1704,7 +1708,7 @@ static void genExp( TreeNode * tree)
 				//precisamos de saber agora o tamanho do vetor, e se é uma variavel ou um numero
 				if(strcmp(tree->child[0]->child[0]->attr.type,"Integer")!=0){
 					//é uma variavel
-					posvec = cgen_search_top(tree->child[0]->child[0]->attr.name);
+					posvec = buscaEscopo(tree->child[0]->child[0]->attr.name);
 					//altera o op1 para este ao inves do de variavel
 					op1.tam = posvec;
 					op1.type = SymtabK;
@@ -1737,7 +1741,7 @@ static void genExp( TreeNode * tree)
 						//é uma variavel
 						//precisa verificar se é vetor ou inteiro
 						op2.kind = SymtabK;
-						op2.value = cgen_search_top(tree->child[1]->attr.name);
+						op2.value = buscaEscopo(tree->child[1]->attr.name);
 						if(strcmp(tree->child[1]->attr.typeVar, "vector") == 0){
 							//é um vetor
 							op2.kind = VecK;
@@ -1750,7 +1754,7 @@ static void genExp( TreeNode * tree)
 
 							if(strcmp(tree->child[1]->child[0]->attr.type,"Integer")!=0){
 								//o valor de dentro do [] do vetor e uma variavel
-								int posvec2 = cgen_search_top(tree->child[1]->child[0]->attr.name);
+								int posvec2 = buscaEscopo(tree->child[1]->child[0]->attr.name);
 								op2.tam = posvec2;
 								op2.type = SymtabK;
 							}
@@ -1795,7 +1799,7 @@ static void genExp( TreeNode * tree)
 					op1.type = ImmK;
 					if(strcmp(tree->child[0]->child[0]->attr.type,"Integer")!=0){
 						//o valor de dentro do [] do vetor e uma variavel
-						int posvec = cgen_search_top(tree->child[0]->child[0]->attr.name);
+						int posvec = buscaEscopo(tree->child[0]->child[0]->attr.name);
 						op1.tam = posvec;
 						op1.type = SymtabK;
 					}
@@ -1825,7 +1829,7 @@ static void genExp( TreeNode * tree)
 					op2.type = ImmK;
 					if(strcmp(tree->child[1]->child[0]->attr.type,"Integer")!=0){
 						//o valor de dentro do [] do vetor e uma variavel
-						int posvec = cgen_search_top(tree->child[1]->child[0]->attr.name);
+						int posvec = buscaEscopo(tree->child[1]->child[0]->attr.name);
 						op2.tam = posvec;
 						op2.type = SymtabK;
 					}
@@ -1869,7 +1873,7 @@ static void genExp( TreeNode * tree)
 			//ja sabemos o que comparar, agora precisamos de verificar o primeiro elemento
 			//ele pode ser uma variavel comum ou vetor
 			op1.kind = SymtabK;
-			op1.value = cgen_search_top(tree->child[0]->attr.name);
+			op1.value = buscaEscopo(tree->child[0]->attr.name);
 			if(strcmp(tree->child[0]->attr.typeVar, "vector") == 0){
 				//é um vetor, devemos fazer todo o tratamento...
 				op1.kind = VecK;
@@ -1878,7 +1882,7 @@ static void genExp( TreeNode * tree)
 				op1.type = ImmK;
 				if(strcmp(tree->child[0]->child[0]->attr.type,"Integer")!=0){
 					//o valor de dentro do [] do vetor e uma variavel
-					int posvec = cgen_search_top(tree->child[0]->child[0]->attr.name);
+					int posvec = buscaEscopo(tree->child[0]->child[0]->attr.name);
 					op1.tam = posvec;
 					op1.type = SymtabK;
 				}
@@ -1905,7 +1909,7 @@ static void genExp( TreeNode * tree)
 						//é uma variavel
 						//precisa verificar se é vetor ou inteiro
 						op2.kind = SymtabK;
-						op2.value = cgen_search_top(tree->child[1]->attr.name);
+						op2.value = buscaEscopo(tree->child[1]->attr.name);
 						if(strcmp(tree->child[1]->attr.typeVar, "vector") == 0){
 							//é um vetor
 							op2.kind = VecK;
@@ -1918,7 +1922,7 @@ static void genExp( TreeNode * tree)
 
 							if(strcmp(tree->child[1]->child[0]->attr.type,"Integer")!=0){
 								//o valor de dentro do [] do vetor e uma variavel
-								int posvec2 = cgen_search_top(tree->child[1]->child[0]->attr.name);
+								int posvec2 = buscaEscopo(tree->child[1]->child[0]->attr.name);
 								op2.tam = posvec2;
 								op2.type = SymtabK;
 							}

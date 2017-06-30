@@ -114,14 +114,15 @@ void st_insert( char * name, char * tipo, int lineno, int loc, TreeNode * treeNo
   	if (l == NULL) { /* variable not yet in table */
   		l = (BucketList) malloc(sizeof(struct BucketListRec));
     		l->name = name;
-		l->treeNode = treeNode;
-		l->tipo = tipo;
+			l->treeNode = treeNode;
+			l->tipo = tipo;
     		l->lines = (LineList) malloc(sizeof(struct LineListRec));
 	    	l->lines->lineno = lineno;
 	    	l->memloc = loc;
+			l->nScope = 9;
 	    	l->lines->next = NULL;
 	    	l->next = top->hashTable[h];
-	   	top->hashTable[h] = l;
+			top->hashTable[h] = l;
 	}
 } /* st_insert */
 
@@ -224,9 +225,20 @@ int st_add_lineno(char * name, int lineno) {
 	}
 }
 
-int cgen_search_top(char * name){
-  int h = hash(name);
-  return h;
+int cgen_search_mem(Scope sc){
+	int i;
+
+	for (i = 0; i < nScope; ++i) {
+		Scope scope = scopes[i];
+		if(scope == sc){
+			return 10;
+		}
+		
+		BucketList * hashTable = scope->hashTable;
+		
+	}
+	
+	return -99;
 }
 
 /* Função para retornar o nome do tipo */
@@ -276,6 +288,36 @@ void printSymTabRows(BucketList *hashTable, FILE *listing) {
 	
 }
 
+
+int cgen_search_top(char * name){
+  int h = hash(name);
+  return h;
+}
+
+int buscaEscopo(char * name){
+	int h = hash(name);
+	int i;
+	for (i = 0; i < nScope; ++i) {
+		Scope scope = scopes[i];
+		BucketList * hashTable = scope->hashTable;
+		if(scope->funcName != NULL)
+			if(strcmp(scope->funcName, nomeEscopoAtual) == 0){
+				int j;
+				for (j = 0; j < SIZE; ++j) {
+					if (hashTable[j] != NULL) {
+						BucketList l = hashTable[j];
+						TreeNode *node = l->treeNode;
+						if(h == j)
+							if((strcmp(l->treeNode->attr.type, "Variável") == 0) || (strcmp(l->treeNode->attr.type, "Vetor") == 0))
+								//printf("ACHAMOS: >%d<\n", l->memloc);
+								return l->memloc;
+						
+					}
+				}
+			}
+	}
+	return 10;
+}
 
 
 void printSymTab(FILE * listing) {

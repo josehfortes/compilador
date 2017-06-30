@@ -154,7 +154,10 @@ static void insertNode( TreeNode * t)
 					declError(t, "Variavel declarada como Void");
 				}
 				else{
-					st_insert(t->child[0]->attr.name,t->attr.name,t->lineno,declaraVariavel(),t);
+					int decl = declaraVariavel();
+					t->child[0]->scope = sc_top();
+					t->scope = sc_top();
+					st_insert(t->child[0]->attr.name,t->attr.name,t->lineno,decl,t);
 				}
 			}
 
@@ -173,6 +176,8 @@ static void insertNode( TreeNode * t)
         else{
             //insere a primeira variavel na tabela
             t->attr.type = "Variável";
+			t->child[0]->scope = sc_top();
+			t->scope = sc_top();
             st_insert(t->child[0]->attr.name,t->attr.name,t->lineno,declaraVariavel(),t);
         }
 	break;

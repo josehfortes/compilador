@@ -12,9 +12,9 @@ void teste(int a, int b, int c){
 
 void main(void)
 {
-	int a;
+  int a[50];
   int b;
   int f;
-	teste(a, b, a);
-	a = 99;
+  teste(a, b, a);
+  a = 99 * a + 10;
 }
