@@ -36,7 +36,6 @@
      Operand op2;
 	 Operand op3;
  } * AsmInstList;
-
  AsmInstList ail;
 
  typedef enum {
@@ -44,7 +43,7 @@
    BEQ, BNE, BGT, BLT, JMP,
    LW, STORE, MOV,
    NOP, HLT, RESET,
-   IN, OUT, OUT3
+   IN, OUT, OUT3, LAB, GOTO
  } Instruction;
 
  typedef struct AssemblyOperand {
@@ -57,6 +56,7 @@
     struct AssemblyList * next;
     Instruction ins;
     AssemblyOperand op1;
+	int pos;
  }* AssemblyList;
  AssemblyList asl;
 

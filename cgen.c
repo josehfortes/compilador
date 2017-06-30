@@ -40,11 +40,14 @@ void asl_initialize(){
  * an AsmInstKind and zero,
  * one or two Operands
 */
+int posAsl = 0;
 
 AssemblyList asl_create(Instruction ins, AssemblyOperand aso){
     AssemblyList as = (AssemblyList) malloc(sizeof(struct AssemblyList));
     as->ins = ins;
     as->op1 = aso;
+	as->pos = posAsl;
+	posAsl++;
     return as;
 }
 
@@ -96,6 +99,9 @@ void limpa_reg(int r){
   registradores[r] = 0;
 }
 
+int localPos = 0;
+
+AssemblyOperand op;
 void gera_assembly(){
   AsmInstList t = ail;
   int posmem1;
@@ -104,8 +110,109 @@ void gera_assembly(){
   int reg2 = 0;
   int reg3 = 0;
   int reg4 = 0;
+  
   while(t != NULL){
 		switch(t->aik){
+		case AsgK:
+			reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
+			reg2 = busca_reg_livre();
+			posmem1 = search_pos_var (t->op1.value);
+			//pode ser uma variavel ou um vetor
+			if(t->op1.kind == VarAsgK){
+				//é uma variavel
+				AssemblyOperand op = {reg1,decimal_binario(posmem1)};
+				asl_insert(asl_create(ADDI, op));
+			}
+			else{
+				//é um vetor
+				if(t->op1.type == ImmK){
+					posmem1 += t->op1.tam;
+					AssemblyOperand op = {reg1,decimal_binario(posmem1)};
+					asl_insert(asl_create(ADDI, op));
+				}
+				else{
+					//o vetor possui variavel como valor da posicao ex.:v[i]
+					posmem2 = search_pos_var (t->op1.tam);
+					//posmem2 representa a posicao da variavel, devemos dar um LW em um registrador REG3 esse valor
+					reg3 = busca_reg_livre();
+					//fazemos um addi no reg3 com o posmem2
+					AssemblyOperand op1 = {reg3,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op1));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg3, reg3};
+					asl_insert(asl_create(LW, op2));
+					//agora, devemos somar o reg3 com o reg1
+					//criamos um addi com a pos do reg1 no reg1
+					AssemblyOperand op3 = {reg1,decimal_binario(posmem1)};
+					asl_insert(asl_create(ADDI, op3));
+					//criamos um add entre esses 2 registradores e armazenamos no proprio reg1
+					AssemblyOperand op4 = {reg1,reg3, reg1};
+					asl_insert(asl_create(ADD, op4));
+					limpa_reg(reg3);
+				}
+			}
+			
+			//vamos ver o que a variavel ira aramzenar
+			if(t->op2.kind == ImmK){
+				//é um imediato
+				//precisamso de armazenar em um registrador reg2 o valor desse imediato
+				AssemblyOperand op = {reg2,decimal_binario(t->op2.value)};
+				asl_insert(asl_create(ADDI, op));
+			}
+			else if (t->op2.kind == TempK){
+				AssemblyOperand op = {0,31,reg2};
+				asl_insert(asl_create(ADD, op));
+			}
+			else if (t->op2.kind == VecK){
+				//é um vetor
+				//a posicao do vetor é t->op2.value, precisamos de somar esse valor com a posicao do tamanho
+				//precisamos verificar se o tamanho do vetor é um imediato ou variavel
+				posmem2 = search_pos_var (t->op2.value);
+				if(t->op2.type == ImmK){
+					posmem2 += t->op2.tam;
+					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg2, reg2};
+					asl_insert(asl_create(LW, op2));
+				}
+				else{
+					//o operando é uma variavel, precismaos de armazenar ela em um vetor, somar com o posmem2 e só depois dar o lw
+					//fazemos um addi com o posmem2
+					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op));
+					//buscamos o valor da variavel 
+					reg3 = busca_reg_livre();
+					//fazemos um addi com a variavel no vetor reg3
+					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
+					asl_insert(asl_create(ADDI, op3));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg3, reg3};
+					asl_insert(asl_create(LW, op2));
+					//somamos os dois e armazenamos no reg2
+					AssemblyOperand op4 = {reg2,reg3, reg2};
+					asl_insert(asl_create(ADD, op4));
+					//liberamos o reg3
+					limpa_reg(reg3);
+				}
+			}
+			else{
+				//é uma variavel
+				reg2 = busca_reg_livre();
+				posmem1 = search_pos_var (t->op2.value);
+				AssemblyOperand op = {reg2,decimal_binario(posmem1)};
+				asl_insert(asl_create(ADDI, op));
+				//fazemos o lw
+				AssemblyOperand op2 = {reg2, reg2};
+				asl_insert(asl_create(LW, op2));
+			}
+			//criamos o store
+			AssemblyOperand op = {reg2,reg1};
+			asl_insert(asl_create(STORE, op));
+			//liberamos os 2 registradores
+			limpa_reg(reg1);
+			limpa_reg(reg2);
+		break;
 		case AddK:
 			//precisamos saber se é imediato, variavel, funcao, temporario
 			/*
@@ -163,22 +270,184 @@ void gera_assembly(){
 			
 		break;
 		case SubK:
+		//precisamos saber se é imediato, variavel, funcao, temporario
+			/*
+			na soma propriamente dita, só será somado dois registradores, logo, precisamos de pegar os dois numeros e armazenar em um reg
+			*/
+			
+			//inicio para a variavel 1
+			if(t->op1.kind == ImmK){
+				//é um imediato, devemos armazenar o seu valor ( em binario ) em um registrador livre
+				//buscamos um registrador livre
+				reg1 = busca_reg_livre();
+				//somamos um imediato a esse registrador
+				AssemblyOperand op1 = {reg1,decimal_binario(t->op1.value)};
+				asl_insert(asl_create(ADDI, op1));
+			}
+			else if(t->op1.kind == TempK){//é um temporario
+				reg1 = 31;
+			}
+			else if(t->op1.kind == VecK){
+				//é vetor =(
+				reg1 = getVarFromMemory(t->op1.value, t->op1.tam);
+			}
+			else{
+				//é variavel
+				reg1 = getVarFromMemory(t->op1.value, 0);
+			}
+			//fim para a variavel 1
+			//inicio pra varaivel 2
+			if(t->op2.kind == ImmK){
+				//é um imediato, devemos armazenar o seu valor ( em binario ) em um registrador livre
+				//buscamos um registrador livre
+				reg2 = busca_reg_livre();
+				//somamos um imediato a esse registrador
+				AssemblyOperand op2 = {reg2,decimal_binario(t->op2.value)};
+				asl_insert(asl_create(ADDI, op2));
+			}
+			else if(t->op2.kind == TempK){//é um temporario
+				reg2 = 31;
+			}
+			else if(t->op2.kind == VecK){
+				//é vetor =(
+				reg2 = getVarFromMemory(t->op2.value, t->op2.tam);
+			}
+			else{
+				//é variavel
+				reg2 = getVarFromMemory(t->op2.value, 0);
+			}
+			//fim pra variavle 2
+			//devemos fazer um add e armazenar em um terceiro registrador
+			reg3 = 31;
+			AssemblyOperand op4 = {reg1,reg2, reg3};
+			asl_insert(asl_create(SUB, op4));
+			limpa_reg(reg1);
+			limpa_reg(reg2);
 		break;
 		case MultK:
+		//precisamos saber se é imediato, variavel, funcao, temporario
+			/*
+			na soma propriamente dita, só será somado dois registradores, logo, precisamos de pegar os dois numeros e armazenar em um reg
+			*/
+			
+			//inicio para a variavel 1
+			if(t->op1.kind == ImmK){
+				//é um imediato, devemos armazenar o seu valor ( em binario ) em um registrador livre
+				//buscamos um registrador livre
+				reg1 = busca_reg_livre();
+				//somamos um imediato a esse registrador
+				AssemblyOperand op1 = {reg1,decimal_binario(t->op1.value)};
+				asl_insert(asl_create(ADDI, op1));
+			}
+			else if(t->op1.kind == TempK){//é um temporario
+				reg1 = 31;
+			}
+			else if(t->op1.kind == VecK){
+				//é vetor =(
+				reg1 = getVarFromMemory(t->op1.value, t->op1.tam);
+			}
+			else{
+				//é variavel
+				reg1 = getVarFromMemory(t->op1.value, 0);
+			}
+			//fim para a variavel 1
+			//inicio pra varaivel 2
+			if(t->op2.kind == ImmK){
+				//é um imediato, devemos armazenar o seu valor ( em binario ) em um registrador livre
+				//buscamos um registrador livre
+				reg2 = busca_reg_livre();
+				//somamos um imediato a esse registrador
+				AssemblyOperand op2 = {reg2,decimal_binario(t->op2.value)};
+				asl_insert(asl_create(ADDI, op2));
+			}
+			else if(t->op2.kind == TempK){//é um temporario
+				reg2 = 31;
+			}
+			else if(t->op2.kind == VecK){
+				//é vetor =(
+				reg2 = getVarFromMemory(t->op2.value, t->op2.tam);
+			}
+			else{
+				//é variavel
+				reg2 = getVarFromMemory(t->op2.value, 0);
+			}
+			//fim pra variavle 2
+			//devemos fazer um add e armazenar em um terceiro registrador
+			reg3 = 31;
+			op.value = reg1;
+			op.value2 = reg2;
+			op.value3 = reg3;
+			
+			asl_insert(asl_create(MULT, op));
+			limpa_reg(reg1);
+			limpa_reg(reg2);
 		break;
 		case DivK:
+		//precisamos saber se é imediato, variavel, funcao, temporario
+			/*
+			na soma propriamente dita, só será somado dois registradores, logo, precisamos de pegar os dois numeros e armazenar em um reg
+			*/
+			
+			//inicio para a variavel 1
+			if(t->op1.kind == ImmK){
+				//é um imediato, devemos armazenar o seu valor ( em binario ) em um registrador livre
+				//buscamos um registrador livre
+				reg1 = busca_reg_livre();
+				//somamos um imediato a esse registrador
+				AssemblyOperand op1 = {reg1,decimal_binario(t->op1.value)};
+				asl_insert(asl_create(ADDI, op1));
+			}
+			else if(t->op1.kind == TempK){//é um temporario
+				reg1 = 31;
+			}
+			else if(t->op1.kind == VecK){
+				//é vetor =(
+				reg1 = getVarFromMemory(t->op1.value, t->op1.tam);
+			}
+			else{
+				//é variavel
+				reg1 = getVarFromMemory(t->op1.value, 0);
+			}
+			//fim para a variavel 1
+			//inicio pra varaivel 2
+			if(t->op2.kind == ImmK){
+				//é um imediato, devemos armazenar o seu valor ( em binario ) em um registrador livre
+				//buscamos um registrador livre
+				reg2 = busca_reg_livre();
+				//somamos um imediato a esse registrador
+				AssemblyOperand op2 = {reg2,decimal_binario(t->op2.value)};
+				asl_insert(asl_create(ADDI, op2));
+			}
+			else if(t->op2.kind == TempK){//é um temporario
+				reg2 = 31;
+			}
+			else if(t->op2.kind == VecK){
+				//é vetor =(
+				reg2 = getVarFromMemory(t->op2.value, t->op2.tam);
+			}
+			else{
+				//é variavel
+				reg2 = getVarFromMemory(t->op2.value, 0);
+			}
+			//fim pra variavle 2
+			//devemos fazer um add e armazenar em um terceiro registrador
+			reg3 = 31;
+			op.value = reg1;
+			op.value2 = reg2;
+			op.value3 = reg3;
+			
+			asl_insert(asl_create(DIV, op));
+			limpa_reg(reg1);
+			limpa_reg(reg2);
+			
 		break;
-		case AsgK:
+		case CmpEqK:
 			reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
 			reg2 = busca_reg_livre();
 			posmem1 = search_pos_var (t->op1.value);
 			//pode ser uma variavel ou um vetor
-			if(t->op1.kind == VarAsgK){
-				//é uma variavel
-				AssemblyOperand op = {reg1,decimal_binario(posmem1)};
-				asl_insert(asl_create(ADDI, op));
-			}
-			else{
+
+			if(t->op1.kind == VecK){
 				//é um vetor
 				if(t->op1.type == ImmK){
 					posmem1 += t->op1.tam;
@@ -206,6 +475,15 @@ void gera_assembly(){
 					limpa_reg(reg3);
 				}
 			}
+			else{
+				//é uma variavel
+				AssemblyOperand op = {reg1,decimal_binario(posmem1)};
+				asl_insert(asl_create(ADDI, op));
+			}
+			//precisamos de buscar essa variavel dando um LW e armazenando no proprio registrador
+			op.value = reg1;
+			op.value2 = reg1;
+			asl_insert(asl_create(LW, op));
 			
 			//vamos ver o que a variavel ira aramzenar
 			if(t->op2.kind == ImmK){
@@ -220,7 +498,36 @@ void gera_assembly(){
 			}
 			else if (t->op2.kind == VecK){
 				//é um vetor
-				//falta fazer aqui
+				//a posicao do vetor é t->op2.value, precisamos de somar esse valor com a posicao do tamanho
+				//precisamos verificar se o tamanho do vetor é um imediato ou variavel
+				posmem2 = search_pos_var (t->op2.value);
+				if(t->op2.type == ImmK){
+					posmem2 += t->op2.tam;
+					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg2, reg2};
+					asl_insert(asl_create(LW, op2));
+				}
+				else{
+					//o operando é uma variavel, precismaos de armazenar ela em um vetor, somar com o posmem2 e só depois dar o lw
+					//fazemos um addi com o posmem2
+					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op));
+					//buscamos o valor da variavel 
+					reg3 = busca_reg_livre();
+					//fazemos um addi com a variavel no vetor reg3
+					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
+					asl_insert(asl_create(ADDI, op3));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg3, reg3};
+					asl_insert(asl_create(LW, op2));
+					//somamos os dois e armazenamos no reg2
+					AssemblyOperand op4 = {reg2,reg3, reg2};
+					asl_insert(asl_create(ADD, op4));
+					//liberamos o reg3
+					limpa_reg(reg3);
+				}
 			}
 			else{
 				//é uma variavel
@@ -233,35 +540,476 @@ void gera_assembly(){
 				asl_insert(asl_create(LW, op2));
 			}
 			
-			//criamos o store
-			AssemblyOperand op = {reg2,reg1};
-			asl_insert(asl_create(STORE, op));
+			
+			//criamos a comparacao e se for verdade pula 2 casas
+			op.value = reg1;
+			op.value2 = reg2;
+			op.value3 = posAsl+2;
+			asl_insert(asl_create(BEQ, op));
 			//liberamos os 2 registradores
 			limpa_reg(reg1);
 			limpa_reg(reg2);
 		break;
-		case GotoK:
-		break;
-		case LabK:
-		break;
-		
-		case CmpEqK:
-		break;
 		case CmpNEqK:
+			reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
+			reg2 = busca_reg_livre();
+			posmem1 = search_pos_var (t->op1.value);
+			//pode ser uma variavel ou um vetor
+
+			if(t->op1.kind == VecK){
+				//é um vetor
+				if(t->op1.type == ImmK){
+					posmem1 += t->op1.tam;
+					AssemblyOperand op = {reg1,decimal_binario(posmem1)};
+					asl_insert(asl_create(ADDI, op));
+				}
+				else{
+					//o vetor possui variavel como valor da posicao ex.:v[i]
+					posmem2 = search_pos_var (t->op1.tam);
+					//posmem2 representa a posicao da variavel, devemos dar um LW em um registrador REG3 esse valor
+					reg3 = busca_reg_livre();
+					//fazemos um addi no reg3 com o posmem2
+					AssemblyOperand op1 = {reg3,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op1));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg3, reg3};
+					asl_insert(asl_create(LW, op2));
+					//agora, devemos somar o reg3 com o reg1
+					//criamos um addi com a pos do reg1 no reg1
+					AssemblyOperand op3 = {reg1,decimal_binario(posmem1)};
+					asl_insert(asl_create(ADDI, op3));
+					//criamos um add entre esses 2 registradores e armazenamos no proprio reg1
+					AssemblyOperand op4 = {reg1,reg3, reg1};
+					asl_insert(asl_create(ADD, op4));
+					limpa_reg(reg3);
+				}
+			}
+			else{
+				//é uma variavel
+				AssemblyOperand op = {reg1,decimal_binario(posmem1)};
+				asl_insert(asl_create(ADDI, op));
+			}
+			//precisamos de buscar essa variavel dando um LW e armazenando no proprio registrador
+			op.value = reg1;
+			op.value2 = reg1;
+			asl_insert(asl_create(LW, op));
+			
+			//vamos ver o que a variavel ira aramzenar
+			if(t->op2.kind == ImmK){
+				//é um imediato
+				//precisamso de armazenar em um registrador reg2 o valor desse imediato
+				AssemblyOperand op = {reg2,decimal_binario(t->op2.value)};
+				asl_insert(asl_create(ADDI, op));
+			}
+			else if (t->op2.kind == TempK){
+				AssemblyOperand op = {0,31,reg2};
+				asl_insert(asl_create(ADD, op));
+			}
+			else if (t->op2.kind == VecK){
+				//é um vetor
+				//a posicao do vetor é t->op2.value, precisamos de somar esse valor com a posicao do tamanho
+				//precisamos verificar se o tamanho do vetor é um imediato ou variavel
+				posmem2 = search_pos_var (t->op2.value);
+				if(t->op2.type == ImmK){
+					posmem2 += t->op2.tam;
+					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg2, reg2};
+					asl_insert(asl_create(LW, op2));
+				}
+				else{
+					//o operando é uma variavel, precismaos de armazenar ela em um vetor, somar com o posmem2 e só depois dar o lw
+					//fazemos um addi com o posmem2
+					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op));
+					//buscamos o valor da variavel 
+					reg3 = busca_reg_livre();
+					//fazemos um addi com a variavel no vetor reg3
+					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
+					asl_insert(asl_create(ADDI, op3));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg3, reg3};
+					asl_insert(asl_create(LW, op2));
+					//somamos os dois e armazenamos no reg2
+					AssemblyOperand op4 = {reg2,reg3, reg2};
+					asl_insert(asl_create(ADD, op4));
+					//liberamos o reg3
+					limpa_reg(reg3);
+				}
+			}
+			else{
+				//é uma variavel
+				reg2 = busca_reg_livre();
+				posmem1 = search_pos_var (t->op2.value);
+				AssemblyOperand op = {reg2,decimal_binario(posmem1)};
+				asl_insert(asl_create(ADDI, op));
+				//fazemos o lw
+				AssemblyOperand op2 = {reg2, reg2};
+				asl_insert(asl_create(LW, op2));
+			}
+			
+			
+			//criamos a comparacao e se for verdade pula 2 casas
+			op.value = reg1;
+			op.value2 = reg2;
+			op.value3 = posAsl+2;
+			asl_insert(asl_create(BNE, op));
+			//liberamos os 2 registradores
+			limpa_reg(reg1);
+			limpa_reg(reg2);
 		break;
 		case CmpGK:
-		break;
-		case CmpGEqK:
+			reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
+			reg2 = busca_reg_livre();
+			posmem1 = search_pos_var (t->op1.value);
+			//pode ser uma variavel ou um vetor
+
+			if(t->op1.kind == VecK){
+				//é um vetor
+				if(t->op1.type == ImmK){
+					posmem1 += t->op1.tam;
+					AssemblyOperand op = {reg1,decimal_binario(posmem1)};
+					asl_insert(asl_create(ADDI, op));
+				}
+				else{
+					//o vetor possui variavel como valor da posicao ex.:v[i]
+					posmem2 = search_pos_var (t->op1.tam);
+					//posmem2 representa a posicao da variavel, devemos dar um LW em um registrador REG3 esse valor
+					reg3 = busca_reg_livre();
+					//fazemos um addi no reg3 com o posmem2
+					AssemblyOperand op1 = {reg3,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op1));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg3, reg3};
+					asl_insert(asl_create(LW, op2));
+					//agora, devemos somar o reg3 com o reg1
+					//criamos um addi com a pos do reg1 no reg1
+					AssemblyOperand op3 = {reg1,decimal_binario(posmem1)};
+					asl_insert(asl_create(ADDI, op3));
+					//criamos um add entre esses 2 registradores e armazenamos no proprio reg1
+					AssemblyOperand op4 = {reg1,reg3, reg1};
+					asl_insert(asl_create(ADD, op4));
+					limpa_reg(reg3);
+				}
+			}
+			else{
+				//é uma variavel
+				AssemblyOperand op = {reg1,decimal_binario(posmem1)};
+				asl_insert(asl_create(ADDI, op));
+			}
+			//precisamos de buscar essa variavel dando um LW e armazenando no proprio registrador
+			op.value = reg1;
+			op.value2 = reg1;
+			asl_insert(asl_create(LW, op));
+			
+			//vamos ver o que a variavel ira aramzenar
+			if(t->op2.kind == ImmK){
+				//é um imediato
+				//precisamso de armazenar em um registrador reg2 o valor desse imediato
+				AssemblyOperand op = {reg2,decimal_binario(t->op2.value)};
+				asl_insert(asl_create(ADDI, op));
+			}
+			else if (t->op2.kind == TempK){
+				AssemblyOperand op = {0,31,reg2};
+				asl_insert(asl_create(ADD, op));
+			}
+			else if (t->op2.kind == VecK){
+				//é um vetor
+				//a posicao do vetor é t->op2.value, precisamos de somar esse valor com a posicao do tamanho
+				//precisamos verificar se o tamanho do vetor é um imediato ou variavel
+				posmem2 = search_pos_var (t->op2.value);
+				if(t->op2.type == ImmK){
+					posmem2 += t->op2.tam;
+					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg2, reg2};
+					asl_insert(asl_create(LW, op2));
+				}
+				else{
+					//o operando é uma variavel, precismaos de armazenar ela em um vetor, somar com o posmem2 e só depois dar o lw
+					//fazemos um addi com o posmem2
+					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op));
+					//buscamos o valor da variavel 
+					reg3 = busca_reg_livre();
+					//fazemos um addi com a variavel no vetor reg3
+					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
+					asl_insert(asl_create(ADDI, op3));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg3, reg3};
+					asl_insert(asl_create(LW, op2));
+					//somamos os dois e armazenamos no reg2
+					AssemblyOperand op4 = {reg2,reg3, reg2};
+					asl_insert(asl_create(ADD, op4));
+					//liberamos o reg3
+					limpa_reg(reg3);
+				}
+			}
+			else{
+				//é uma variavel
+				reg2 = busca_reg_livre();
+				posmem1 = search_pos_var (t->op2.value);
+				AssemblyOperand op = {reg2,decimal_binario(posmem1)};
+				asl_insert(asl_create(ADDI, op));
+				//fazemos o lw
+				AssemblyOperand op2 = {reg2, reg2};
+				asl_insert(asl_create(LW, op2));
+			}
+			
+			
+			//criamos a comparacao e se for verdade pula 2 casas
+			op.value = reg1;
+			op.value2 = reg2;
+			op.value3 = posAsl+2;
+			asl_insert(asl_create(BGT, op));
+			//liberamos os 2 registradores
+			limpa_reg(reg1);
+			limpa_reg(reg2);
 		break;
 		case CmpLK:
+		reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
+			reg2 = busca_reg_livre();
+			posmem1 = search_pos_var (t->op1.value);
+			//pode ser uma variavel ou um vetor
+
+			if(t->op1.kind == VecK){
+				//é um vetor
+				if(t->op1.type == ImmK){
+					posmem1 += t->op1.tam;
+					AssemblyOperand op = {reg1,decimal_binario(posmem1)};
+					asl_insert(asl_create(ADDI, op));
+				}
+				else{
+					//o vetor possui variavel como valor da posicao ex.:v[i]
+					posmem2 = search_pos_var (t->op1.tam);
+					//posmem2 representa a posicao da variavel, devemos dar um LW em um registrador REG3 esse valor
+					reg3 = busca_reg_livre();
+					//fazemos um addi no reg3 com o posmem2
+					AssemblyOperand op1 = {reg3,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op1));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg3, reg3};
+					asl_insert(asl_create(LW, op2));
+					//agora, devemos somar o reg3 com o reg1
+					//criamos um addi com a pos do reg1 no reg1
+					AssemblyOperand op3 = {reg1,decimal_binario(posmem1)};
+					asl_insert(asl_create(ADDI, op3));
+					//criamos um add entre esses 2 registradores e armazenamos no proprio reg1
+					AssemblyOperand op4 = {reg1,reg3, reg1};
+					asl_insert(asl_create(ADD, op4));
+					limpa_reg(reg3);
+				}
+			}
+			else{
+				//é uma variavel
+				AssemblyOperand op = {reg1,decimal_binario(posmem1)};
+				asl_insert(asl_create(ADDI, op));
+			}
+			//precisamos de buscar essa variavel dando um LW e armazenando no proprio registrador
+			op.value = reg1;
+			op.value2 = reg1;
+			asl_insert(asl_create(LW, op));
+			
+			//vamos ver o que a variavel ira aramzenar
+			if(t->op2.kind == ImmK){
+				//é um imediato
+				//precisamso de armazenar em um registrador reg2 o valor desse imediato
+				AssemblyOperand op = {reg2,decimal_binario(t->op2.value)};
+				asl_insert(asl_create(ADDI, op));
+			}
+			else if (t->op2.kind == TempK){
+				AssemblyOperand op = {0,31,reg2};
+				asl_insert(asl_create(ADD, op));
+			}
+			else if (t->op2.kind == VecK){
+				//é um vetor
+				//a posicao do vetor é t->op2.value, precisamos de somar esse valor com a posicao do tamanho
+				//precisamos verificar se o tamanho do vetor é um imediato ou variavel
+				posmem2 = search_pos_var (t->op2.value);
+				if(t->op2.type == ImmK){
+					posmem2 += t->op2.tam;
+					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg2, reg2};
+					asl_insert(asl_create(LW, op2));
+				}
+				else{
+					//o operando é uma variavel, precismaos de armazenar ela em um vetor, somar com o posmem2 e só depois dar o lw
+					//fazemos um addi com o posmem2
+					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op));
+					//buscamos o valor da variavel 
+					reg3 = busca_reg_livre();
+					//fazemos um addi com a variavel no vetor reg3
+					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
+					asl_insert(asl_create(ADDI, op3));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg3, reg3};
+					asl_insert(asl_create(LW, op2));
+					//somamos os dois e armazenamos no reg2
+					AssemblyOperand op4 = {reg2,reg3, reg2};
+					asl_insert(asl_create(ADD, op4));
+					//liberamos o reg3
+					limpa_reg(reg3);
+				}
+			}
+			else{
+				//é uma variavel
+				reg2 = busca_reg_livre();
+				posmem1 = search_pos_var (t->op2.value);
+				AssemblyOperand op = {reg2,decimal_binario(posmem1)};
+				asl_insert(asl_create(ADDI, op));
+				//fazemos o lw
+				AssemblyOperand op2 = {reg2, reg2};
+				asl_insert(asl_create(LW, op2));
+			}
+			
+			
+			//criamos a comparacao e se for verdade pula 2 casas
+			op.value = reg1;
+			op.value2 = reg2;
+			op.value3 = posAsl+2;
+			asl_insert(asl_create(BLT, op));
+			//liberamos os 2 registradores
+			limpa_reg(reg1);
+			limpa_reg(reg2);
 		break;
+		case CmpGEqK:
+		reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
+			reg2 = busca_reg_livre();
+			posmem1 = search_pos_var (t->op1.value);
+			//pode ser uma variavel ou um vetor
+
+			if(t->op1.kind == VecK){
+				//é um vetor
+				if(t->op1.type == ImmK){
+					posmem1 += t->op1.tam;
+					AssemblyOperand op = {reg1,decimal_binario(posmem1)};
+					asl_insert(asl_create(ADDI, op));
+				}
+				else{
+					//o vetor possui variavel como valor da posicao ex.:v[i]
+					posmem2 = search_pos_var (t->op1.tam);
+					//posmem2 representa a posicao da variavel, devemos dar um LW em um registrador REG3 esse valor
+					reg3 = busca_reg_livre();
+					//fazemos um addi no reg3 com o posmem2
+					AssemblyOperand op1 = {reg3,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op1));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg3, reg3};
+					asl_insert(asl_create(LW, op2));
+					//agora, devemos somar o reg3 com o reg1
+					//criamos um addi com a pos do reg1 no reg1
+					AssemblyOperand op3 = {reg1,decimal_binario(posmem1)};
+					asl_insert(asl_create(ADDI, op3));
+					//criamos um add entre esses 2 registradores e armazenamos no proprio reg1
+					AssemblyOperand op4 = {reg1,reg3, reg1};
+					asl_insert(asl_create(ADD, op4));
+					limpa_reg(reg3);
+				}
+			}
+			else{
+				//é uma variavel
+				AssemblyOperand op = {reg1,decimal_binario(posmem1)};
+				asl_insert(asl_create(ADDI, op));
+			}
+			//precisamos de buscar essa variavel dando um LW e armazenando no proprio registrador
+			op.value = reg1;
+			op.value2 = reg1;
+			asl_insert(asl_create(LW, op));
+			
+			//vamos ver o que a variavel ira aramzenar
+			if(t->op2.kind == ImmK){
+				//é um imediato
+				//precisamso de armazenar em um registrador reg2 o valor desse imediato
+				AssemblyOperand op = {reg2,decimal_binario(t->op2.value)};
+				asl_insert(asl_create(ADDI, op));
+			}
+			else if (t->op2.kind == TempK){
+				AssemblyOperand op = {0,31,reg2};
+				asl_insert(asl_create(ADD, op));
+			}
+			else if (t->op2.kind == VecK){
+				//é um vetor
+				//a posicao do vetor é t->op2.value, precisamos de somar esse valor com a posicao do tamanho
+				//precisamos verificar se o tamanho do vetor é um imediato ou variavel
+				posmem2 = search_pos_var (t->op2.value);
+				if(t->op2.type == ImmK){
+					posmem2 += t->op2.tam;
+					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg2, reg2};
+					asl_insert(asl_create(LW, op2));
+				}
+				else{
+					//o operando é uma variavel, precismaos de armazenar ela em um vetor, somar com o posmem2 e só depois dar o lw
+					//fazemos um addi com o posmem2
+					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
+					asl_insert(asl_create(ADDI, op));
+					//buscamos o valor da variavel 
+					reg3 = busca_reg_livre();
+					//fazemos um addi com a variavel no vetor reg3
+					AssemblyOperand op3 = {reg3,decimal_binario(search_pos_var(t->op2.tam))};
+					asl_insert(asl_create(ADDI, op3));
+					//fazemos o lw
+					AssemblyOperand op2 = {reg3, reg3};
+					asl_insert(asl_create(LW, op2));
+					//somamos os dois e armazenamos no reg2
+					AssemblyOperand op4 = {reg2,reg3, reg2};
+					asl_insert(asl_create(ADD, op4));
+					//liberamos o reg3
+					limpa_reg(reg3);
+				}
+			}
+			else{
+				//é uma variavel
+				reg2 = busca_reg_livre();
+				posmem1 = search_pos_var (t->op2.value);
+				AssemblyOperand op = {reg2,decimal_binario(posmem1)};
+				asl_insert(asl_create(ADDI, op));
+				//fazemos o lw
+				AssemblyOperand op2 = {reg2, reg2};
+				asl_insert(asl_create(LW, op2));
+			}
+			
+			
+			//criamos a comparacao e se for verdade pula 2 casas
+			op.value = reg1;
+			op.value2 = reg2;
+			op.value3 = posAsl+3;
+			asl_insert(asl_create(BGT, op));
+			op.value = reg1;
+			op.value2 = reg2;
+			op.value3 = posAsl+2;
+			asl_insert(asl_create(BEQ, op));
+			//liberamos os 2 registradores
+			limpa_reg(reg1);
+			limpa_reg(reg2);
+		break;
+		
 		case CmpLEqK:
+		break;
+		case LabK:
+			op.value = t->op1.value;
+			asl_insert(asl_create(LAB, op));
+		break;
+		case GotoK:
+			op.value = t->op1.value;
+			asl_insert(asl_create(GOTO, op));
 		break;
 		case FunctionCallK:
 		break;
 		case FunctionReturnK:
 		break;
 		case If_FK:
+			//criamos o goto que vai virar jump pra label 
+			op.value = t->op2.value;
+			asl_insert(asl_create(GOTO, op));
+			
 		break;
 		case FunctionParameterK:
 		break;
@@ -281,6 +1029,7 @@ void print_assembly(){
   printf("-------------------- PRINT ASSEMBLY ------------------\n");
   AssemblyList t = asl;
   while(t != NULL){
+	  printf("POS: [%d] - ",t->pos);
     switch(t->ins){
       case ADD:
         printf("ADD REG_%d, REG%d + REG%d\n",t->op1.value3,t->op1.value,t->op1.value2);
@@ -289,20 +1038,41 @@ void print_assembly(){
         printf("ADDI REG_%d, %d\n",t->op1.value,t->op1.value2);
       break;
       case SUB:
-        printf("SUB REG_%d REG%d - REG%d\n",t->op1.value,t->op1.value2,t->op1.value3);
+        printf("SUB REG_%d, REG%d - REG%d\n",t->op1.value3,t->op1.value,t->op1.value2);
       break;
       case MULT:
-        printf("MULT REG_%d REG%d * REG%d\n",t->op1.value,t->op1.value2,t->op1.value3);
+        printf("MULT REG_%d, REG%d * REG%d\n",t->op1.value3,t->op1.value,t->op1.value2);
       break;
       case DIV:
-        printf("DIV REG_%d REG%d / REG%d\n",t->op1.value,t->op1.value2,t->op1.value3);
+        printf("DIV REG_%d, REG%d / REG%d\n",t->op1.value3,t->op1.value,t->op1.value2);
       break;
       case STORE:
         printf("STORE REG_%d, MEMORY[REG_%d]\n", t->op1.value,t->op1.value2);
       break;
       case LW:
-        printf("LW REG%d, MEMORY[REG_%d]\n", t->op1.value,t->op1.value2);
+        printf("LW REG_%d, MEMORY[REG_%d]\n", t->op1.value,t->op1.value2);
+	  break;
+	  case LAB:
+        printf("LAB %d\n", t->op1.value);
+	  break;
+	  case GOTO:
+        printf("GOTO LAB%d\n", t->op1.value);
       break;
+	  case JMP:
+		printf("JMP %d\n", t->op1.value);
+	  break;
+	  case BEQ:
+		printf("BEQ REG_%d, REG_%d GO TO %d\n", t->op1.value, t->op1.value2,t->op1.value3);
+	  break;
+	  case BNE:
+		printf("BNE REG_%d, REG_%d GO TO %d\n", t->op1.value, t->op1.value2,t->op1.value3);
+	  break;
+	  case BGT:
+		printf("BGT REG_%d, REG_%d GO TO %d\n", t->op1.value, t->op1.value2,t->op1.value3);
+	  break;
+	  case BLT:
+		printf("BLT REG_%d, REG_%d GO TO %d\n", t->op1.value, t->op1.value2,t->op1.value3);
+	  break;
     }
     t = t->next;
   }
