@@ -17,7 +17,7 @@
                  CmpEqK, CmpNEqK, CmpGK, CmpGEqK, CmpLK, CmpLEqK,
                  AsgK, VarAsgK, VecAsgK,
                  InputK, OutputK,
-                 FunctionParameterK, FunctionCallK, FunctionReturnK, LabK,
+                 FunctionParameterK, FunctionCallK, FunctionReturnK, LabK, FunctionVoidCallK,
                  GotoK,If_FK
  } AsmInstKind;
 

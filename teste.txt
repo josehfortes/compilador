@@ -6,10 +6,15 @@ void output(int out)
 {
 }
 
+void teste(int a, int b, int c){
+ int a;
+ a = 50;
+}
+
 void main(void)
 {
 	int a;
 	int b[50];
-	
-	
+	teste(a, b, a);
+	a = 99;
 }

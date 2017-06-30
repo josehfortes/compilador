@@ -1001,17 +1001,16 @@ void gera_assembly(){
 			op.value = t->op1.value;
 			asl_insert(asl_create(GOTO, op));
 		break;
-		case FunctionCallK:
-		break;
-		case FunctionReturnK:
-		break;
 		case If_FK:
 			//criamos o goto que vai virar jump pra label 
 			op.value = t->op2.value;
 			asl_insert(asl_create(GOTO, op));
-			
 		break;
 		case FunctionParameterK:
+		break;
+		case FunctionCallK:
+		break;
+		case FunctionReturnK:
 		break;
 		}
     t = t->next;
@@ -1382,6 +1381,9 @@ void ail_print(){
 		case FunctionCallK:
 			printf("(cal,%d,%d,t%d)\n",t->op1.value,t->op2.value,t->op3.value);
 		break;
+		case FunctionVoidCallK:
+			printf("(Vcal,%d,%d,_)\n",t->op1.value, t->op2.value);
+		break;
 		case FunctionReturnK:
 			if(t->op1.kind == ImmK){
  			printf("(ret,(%d),_,_)\n",t->op1.value);
@@ -1666,8 +1668,19 @@ static void genExp( TreeNode * tree)
 		
 	break;
     case IdK :
-		printf("entrou no IdK\n");
-		OpGlobal.value = cgen_search_top(tree->attr.name);
+		if(strcmp(tree->attr.type,"chamadaFuncao") == 0){
+			//chamada de funcao void
+			//printf("entrou no funcao: %d \n",cgen_search_top(tree->attr.name));
+			op1.value = cgen_search_top(tree->attr.name);
+			//precisamos buscar quantos parametros a funcao temp
+			op2.value = 0;
+			tempT++;
+			op3.value = tempT;
+			ail_insert(ail_create(FunctionCallK, op1, op2, op3));
+		}
+		else{
+			OpGlobal.value = cgen_search_top(tree->attr.name);
+		}
     break; /* IdK */
 	case OpK:
 		printf("entrou no OpK\n");
