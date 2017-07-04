@@ -126,9 +126,11 @@ static void insertNode( TreeNode * t)
             declError(t, "Variavel ja foi usada anteriormente.");
         }
         else{
-            //insere a primeira variavel na tabela
-            t->attr.type = "Vetor";
-			//printf("OI TO AKI %d", t->attr.val);
+			t->attr.type = "Vetor";
+			if(t->attr.val == NULL){
+				t->par = 1;
+				st_insert(t->child[0]->attr.name,t->attr.name,t->lineno,declaraVariavel(),t);
+			}
             st_insert(t->child[0]->attr.name,t->attr.name,t->lineno,declaraVetor(t->attr.val),t);
         }
 	break;
@@ -176,7 +178,8 @@ static void insertNode( TreeNode * t)
         else{
             //insere a primeira variavel na tabela
             t->attr.type = "Variável";
-			t->child[0]->scope = sc_top();
+			t->par = 1;
+ 			t->child[0]->scope = sc_top();
 			t->scope = sc_top();
             st_insert(t->child[0]->attr.name,t->attr.name,t->lineno,declaraVariavel(),t);
         }

@@ -294,6 +294,38 @@ int cgen_search_top(char * name){
   return h;
 }
 
+int busca_parametro (char * name){
+	int h = hash(name);
+	int i;
+	for (i = 0; i < nScope; ++i) {
+		Scope scope = scopes[i];
+		BucketList * hashTable = scope->hashTable;
+		if(scope->funcName != NULL)
+			if(strcmp(scope->funcName, name) == 0)
+				return i;
+	}
+	return -1;
+}
+
+int busca_var_par(int i, int qt){
+	int qtl = 0;
+	Scope scope = scopes[i];
+	BucketList * hashTable = scope->hashTable;
+	for (int j = 0; j < SIZE; ++j) {
+		if (hashTable[j] != NULL) {
+			BucketList l = hashTable[j];
+			TreeNode *node = l->treeNode;
+			if((strcmp(l->treeNode->attr.type, "Variável") == 0) || (strcmp(l->treeNode->attr.type, "Vetor") == 0))
+				if (qtl == qt)
+					return l->memloc;
+				else
+					qtl++;
+		}
+	}
+}
+
+
+
 int buscaEscopo(char * name){
 	int h = hash(name);
 	int i;

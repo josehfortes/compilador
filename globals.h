@@ -88,6 +88,7 @@ typedef struct treeNode
 	     char * typeVar;
 		 } attr;
 	  int mempos;
+	  int par;
      struct Scope * scope;
      ExpType type; /* for type checking of exps */
    } TreeNode;

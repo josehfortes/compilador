@@ -1010,6 +1010,57 @@ void gera_assembly(){
 			asl_insert(asl_create(GOTO, op));
 		break;
 		case FunctionParameterK:
+			//iniciamos alocando um registador e armazenando nele o valor do endereço da variavel onde salvaremos
+			//o endereço da variavel econtra-se no t->op2.value
+			reg1 = busca_reg_livre();
+			reg2 = busca_reg_livre();
+			//somamos um imediato a esse registrador
+			AssemblyOperand op2 = {reg2,decimal_binario(t->op2.value)};
+			asl_insert(asl_create(ADDI, op2));
+			//agora vamos verificar o que é a variavel que será armazenado
+			if(t->op1.kind == ImmK){
+				//é um imediato
+				AssemblyOperand op1 = {reg1,decimal_binario(t->op1.value)};
+				asl_insert(asl_create(ADDI, op1));
+			}
+			else if(t->op1.kind == TempK){
+				AssemblyOperand op1 = {reg1,31,reg1};
+				asl_insert(asl_create(ADD, op1));
+			}
+			else if(t->op1.kind == VecK){
+				//é um vetor
+				
+			}
+			else{
+				//é uma variavel
+				//somamos o seu valor no reg1
+				AssemblyOperand op4 = {reg1,decimal_binario(t->op1.value)};
+				asl_insert(asl_create(ADDI, op4));
+				//carregamos com lw e armazenamos no proprio reg1
+				AssemblyOperand op5 = {reg1, reg1};
+				asl_insert(asl_create(LW, op5));
+			}
+			
+			//fazemos um store agora para armazenar na posição correta o parametro
+			AssemblyOperand op6 = {reg1, reg2};
+			asl_insert(asl_create(STORE, op6));
+			//liberamos os 2 registradores
+			limpa_reg(reg1);
+			limpa_reg(reg2);
+			
+			/*
+			if(t->op1.kind == VecK){
+				sprintf(str, "%d[%d]", t->op1.value, t->op1.tam);
+				if(t->op1.type == ImmK){
+					sprintf(str, "%d[(%d)]", t->op1.value, t->op1.tam);
+				}
+			}
+			else if(t->op1.kind == TempK)
+				sprintf(str, "t%d", t->op1.value);
+			else if(t->op1.kind == ImmK)
+				sprintf(str, "(%d)", t->op1.value);
+			printf("(par,%s, %d)\n",str, t->op2.value);
+			*/
 		break;
 		case FunctionCallK:
 		break;
@@ -1383,6 +1434,8 @@ void ail_print(){
 		break;
 		case FunctionCallK:
 			printf("(cal,%d,%d,t%d)\n",t->op1.value,t->op2.value,t->op3.value);
+		case InputK:
+			printf("(IN,t%d,_ ,_)\n",t->op3.value);
 		break;
 		case FunctionVoidCallK:
 			printf("(Vcal,%d,%d,_)\n",t->op1.value, t->op2.value);
@@ -1413,7 +1466,7 @@ void ail_print(){
 				sprintf(str, "t%d", t->op1.value);
 			else if(t->op1.kind == ImmK)
 				sprintf(str, "(%d)", t->op1.value);
-			printf("(par,%s)\n",str);
+			printf("(par,%s, %d)\n",str, t->op2.value);
 		break;
     }
 
@@ -1609,21 +1662,26 @@ static void genExp( TreeNode * tree)
 		printf("entrou no IntK\n");
 	break;
 	case AtivK:
-		printf("entrou no ativk");
+		printf("entrou no ativk\n");
 		//precisamos buscar quantos parametros a funcao temp
 		int qt = 0;
 		TreeNode * t = tree->child[0];
+		int nescopo = busca_parametro(tree->attr.name);
+		int nvar;
 		while(t != NULL){
+		nvar = busca_var_par(nescopo, qt);
 		 if (t->attr.type == NULL){
 			 cGen(t);
 			 //parametro é o temporario
 			 Operand op2 = {TempK, tempT};
-		     ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
+			 Operand op3 = {AssignK, nvar};
+		     ail_insert(ail_create(FunctionParameterK, op2, op3, opn));
 		 }
 		 else{
 			 if(strcmp(t->attr.type,"Integer") == 0){
+				Operand op3 = {AssignK, nvar};
 				Operand op2 = {ImmK, t->attr.val};
-				ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
+				ail_insert(ail_create(FunctionParameterK, op2, op3, opn));
 			 }
 			 else{
 				//pode ser uma variavel ou uma funcao
@@ -1631,10 +1689,12 @@ static void genExp( TreeNode * tree)
 
 					//cGen(t);
 					Operand op2 = {TempK, tempT};
-					ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
+					Operand op3 = {AssignK, nvar};
+					ail_insert(ail_create(FunctionParameterK, op2, op3, opn));
 				}
 				else{//é uma variavel
 					//cGen(t);
+					Operand op3 = {AssignK, nvar};
 					Operand op2 = {SymtabK, buscaEscopo(t->attr.name)};
 					//veriificar se é vetor ou n
 
@@ -1654,15 +1714,15 @@ static void genExp( TreeNode * tree)
 							op2.tam = posvec2;
 							op2.type = SymtabK;
 						}
-
 					}
-					ail_insert(ail_create(FunctionParameterK, op2, opn, opn));
+					ail_insert(ail_create(FunctionParameterK, op2, op3, opn));
 				}
 
 			 }
 		 }
 		 qt = qt+1;
 		 t = t->sibling;
+		 
 		}
 		int funcao = cgen_search_top(tree->attr.name);
 		tempT++;
@@ -1680,7 +1740,10 @@ static void genExp( TreeNode * tree)
 			op2.value = 0;
 			tempT++;
 			op3.value = tempT;
-			ail_insert(ail_create(FunctionCallK, op1, op2, op3));
+			if (strcmp(tree->attr.name, "input") == 0)
+				ail_insert(ail_create(InputK, op1, op2, op3));
+			else
+				ail_insert(ail_create(FunctionCallK, op1, op2, op3));
 		}
 		else{
 			OpGlobal.value = buscaEscopo(tree->attr.name);
@@ -1764,7 +1827,7 @@ static void genExp( TreeNode * tree)
 					else{
 						//é uma chamada de funcao, devemos chama-la e armazenar dps o seu retorno
 						//o retorno estará em um temporario
-						cGen(tree->child[1]);
+						//cGen(tree->child[1]);
 						op2.kind = TempK;
 						op2.value = tempT;
 					}

@@ -7,14 +7,19 @@ void output(int out)
 }
 
 void teste(int a, int b, int c){
+ int d;
  a = 50;
+}
+
+int testee(void){
+ return 10;
 }
 
 void main(void)
 {
-  int a[50];
+  int a;
   int b;
   int f;
-  teste(a, b, a);
-  a = 99 * a + 10;
+  /*teste(a + 9999, b, f);*/
+  a = input();
 }

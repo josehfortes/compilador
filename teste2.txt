@@ -2,15 +2,33 @@ int input(void)
 {
 }
 
-void output(int x)
+void output(int out)
 {
 }
 
-void main(void)
-{ 
-int x;
-if(x != 0){
-x = 1;
+int fibonacci(int n){
+    int c;
+    int next;
+    int first;
+    int second;
+    first = 0;
+    second = 1;
+    c = 0;
+    while(c <= n){
+        if(c <= 1)
+            next = c;
+        else{
+            next = first + second;
+            first = second;
+            second = next; /* Estava second = first */
+        }
+        c = c + 1;
+    }
+    return next;
 }
 
+void main(void){
+  int n;
+  n = input();
+  output(fibonacci(n));
 }

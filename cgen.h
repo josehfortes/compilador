@@ -12,7 +12,6 @@
  typedef enum {TempK, SymtabK, ImmK, VecK, FuncK} OperandKind;
  /* Assembly Instruction Set: 21 instructions */
  typedef enum {
-
                  AddK, SubK, MultK, DivK,
                  CmpEqK, CmpNEqK, CmpGK, CmpGEqK, CmpLK, CmpLEqK,
                  AsgK, VarAsgK, VecAsgK,
