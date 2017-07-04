@@ -1107,8 +1107,16 @@ void gera_assembly(){
 			asl_insert(asl_create(JMP, op));
 		break;
 		case FunctionReturnK:
-			//precisamos de recuperar a posicao na memoria pra dar o jmpr
-			
+			//precisamos de recuperar a posicao na memoria pra dar o jmpr - a funcao possui hash t->op2.value
+			reg1 = busca_reg_livre();
+			op.value = reg1;
+			op.value2 = busca_funcao_memoria(t->op2.value);
+			asl_insert(asl_create(ADDI, op));
+			op.value = reg1;
+			op.value2 = reg1;
+			asl_insert(asl_create(LW, op));
+			asl_insert(asl_create(JMPR, op));
+			limpa_reg(reg1);
 		break;
 		case InputK:
 			op.value = 31;
@@ -1171,6 +1179,9 @@ void print_assembly(){
       break;
 	  case JMP:
 		printf("JMP %d\n", t->op1.value);
+	  break;
+	  case JMPR:
+		printf("JMPR REG_%d\n", t->op1.value);
 	  break;
 	  case BEQ:
 		printf("BEQ REG_%d, REG_%d GO TO %d\n", t->op1.value, t->op1.value2,t->op1.value3);
@@ -1601,22 +1612,26 @@ static void genStmt( TreeNode * tree)
 			//temporario
 			cGen(tree->child[0]);
  			Operand op2 = {TempK, tempT};
- 			ail_insert(ail_create(FunctionReturnK, op2, opn, opn)); //FunctionReturnK para retorno de inteiro
+			Operand op3 = {TempK, cgen_search_top(nomeEscopoAtual)};
+ 			ail_insert(ail_create(FunctionReturnK, op2, op3, opn)); //FunctionReturnK para retorno de inteiro
 		}
  		else if(strcmp(tree->child[0]->attr.type, "Integer") == 0){
  			Operand op2 = {ImmK, tree->child[0]->attr.val};
- 			ail_insert(ail_create(FunctionReturnK, op2, opn, opn)); //FunctionReturnK para retorno de inteiro
+			Operand op3 = {TempK, cgen_search_top(nomeEscopoAtual)};
+ 			ail_insert(ail_create(FunctionReturnK, op2, op3, opn)); //FunctionReturnK para retorno de inteiro
  		}
  		else if(strcmp(tree->child[0]->attr.type, "id") == 0){
  			Operand op2 = {SymtabK, buscaEscopo(tree->child[0]->attr.name)};
- 			ail_insert(ail_create(FunctionReturnK, op2, opn, opn)); //FunctionReturnK para retorno de variavel
+			Operand op3 = {TempK, cgen_search_top(nomeEscopoAtual)};
+ 			ail_insert(ail_create(FunctionReturnK, op2, op3, opn)); //FunctionReturnK para retorno de variavel
 
  		}
  		else if(strcmp(tree->child[0]->attr.type, "funcao") == 0){
  			//é necessario acessar o ativk
  			cGen(tree->child[0]);
  			Operand op2 = {TempK, tempT};
- 			ail_insert(ail_create(FunctionReturnK, op2, opn, opn)); //FunctionReturnK para retorno de inteiro
+			Operand op3 = {TempK, cgen_search_top(nomeEscopoAtual)};
+ 			ail_insert(ail_create(FunctionReturnK, op2, op3, opn)); //FunctionReturnK para retorno de inteiro
  		}
 	break;
 	case AssignK:
@@ -1710,7 +1725,6 @@ static void genStmt( TreeNode * tree)
     case FuncaoK:
 		printf("entrou no FuncaoK\n");
         pos = cgen_search_top(tree->child[0]->attr.name);
-		//akijh
 		nomeEscopoAtual = tree->child[0]->attr.name;
         Operand op1 = {SymtabK, pos};
         ail_insert(ail_create(LabK,op1,opn,opn)); //LabK para label
