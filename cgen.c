@@ -103,6 +103,28 @@ void limpa_reg(int r){
 
 int localPos = 0;
 
+int busca_tamanho_assembly(){
+	AssemblyList t = asl;
+	int i=0;
+	while(t != NULL){
+		t = t->next;
+		i++;
+	}
+	return i;
+}
+
+int busca_funcao_assembly(int lab){
+	AssemblyList t = asl;
+	int i=0;
+	while(t != NULL){
+		if(t->op1.value == lab)
+			return i;
+		t = t->next;
+		i++;
+	}
+	return -1;
+}
+
 AssemblyOperand op;
 void gera_assembly(){
   AsmInstList t = ail;
@@ -1063,7 +1085,26 @@ void gera_assembly(){
 			*/
 		break;
 		case FunctionCallK:
-			
+			//a funcao possui a hash t->op1.value - procuraremos qual posicao de memoria ela se encontra
+			reg1 = busca_reg_livre();
+			reg2 = busca_reg_livre();
+			op.value = reg1;
+			op.value2 = busca_funcao_memoria(t->op1.value);
+			asl_insert(asl_create(ADDI, op));
+			//reg1 vai receber o valor da posicao de memoria que será gravada a posicao do jump no return
+			//precisamos buscar a posição que ele voltará para o jmpr e armazenar nessa posicao de memoria
+			op.value = reg2;
+			op.value2 = busca_tamanho_assembly() + 3;
+			asl_insert(asl_create(ADDI, op));
+			//fazemos o store
+			op.value = reg2;
+			op.value2 = reg1;
+			asl_insert(asl_create(STORE, op));
+			limpa_reg(reg1);
+			limpa_reg(reg2);
+			//agora faremos o jump pra funcao, precisamos de buscar a posicao que encontra-se a label da funcao
+			op.value = busca_funcao_assembly(t->op1.value) + 1;
+			asl_insert(asl_create(JMP, op));
 		break;
 		case FunctionReturnK:
 		break;
@@ -1458,6 +1499,7 @@ void ail_print(){
 		break;
 		case FunctionCallK:
 			printf("(cal,%d,%d,t%d)\n",t->op1.value,t->op2.value,t->op3.value);
+		break;
 		case InputK:
 			printf("(IN,t%d,_,_)\n",t->op3.value);
 		break;
@@ -1714,8 +1756,7 @@ static void genExp( TreeNode * tree)
 			 else{
 				//pode ser uma variavel ou uma funcao
 				if(strcmp(t->attr.type,"funcao") == 0){//é uma funcao
-
-					//cGen(t);
+					cGen(t);
 					Operand op2 = {TempK, tempT};
 					Operand op3 = {AssignK, nvar};
 					ail_insert(ail_create(FunctionParameterK, op2, op3, opn));
@@ -1774,6 +1815,7 @@ static void genExp( TreeNode * tree)
 			op2.value = 0;
 			tempT++;
 			op3.value = tempT;
+			
 			if (strcmp(tree->attr.name, "input") == 0)
 				ail_insert(ail_create(InputK, op1, op2, op3));
 			else

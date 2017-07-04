@@ -275,7 +275,7 @@ void printSymTabRows(BucketList *hashTable, FILE *listing) {
 							fprintf(listing,"%4d ",t->lineno);
 							t = t->next;
 						}
-						if((strcmp(l->treeNode->attr.type, "Variável") == 0) || (strcmp(l->treeNode->attr.type, "Vetor") == 0)){
+						if((strcmp(l->treeNode->attr.type, "Variável") == 0) || (strcmp(l->treeNode->attr.type, "Vetor") == 0) || (strcmp(l->treeNode->attr.type, "Função") == 0)){
 							fprintf(listing,"%13d",l->memloc);
 						}
 						
@@ -288,6 +288,12 @@ void printSymTabRows(BucketList *hashTable, FILE *listing) {
 	
 }
 
+int busca_funcao_memoria(int j){
+	Scope scope = scopes[0];
+	BucketList * hashTable = scope->hashTable;
+	BucketList l = hashTable[j];
+	return l->memloc;
+}
 
 int cgen_search_top(char * name){
   int h = hash(name);
@@ -316,10 +322,12 @@ int busca_var_par(int i, int qt){
 			BucketList l = hashTable[j];
 			TreeNode *node = l->treeNode;
 			if((strcmp(l->treeNode->attr.type, "Variável") == 0) || (strcmp(l->treeNode->attr.type, "Vetor") == 0))
-				if (qtl == qt)
-					return l->memloc;
-				else
-					qtl++;
+				if(l->treeNode->par != NULL)
+					if(l->treeNode->par == 1)
+						if (qtl == qt)
+							return l->memloc;
+						else
+							qtl++;
 		}
 	}
 }
@@ -341,14 +349,13 @@ int buscaEscopo(char * name){
 						TreeNode *node = l->treeNode;
 						if(h == j)
 							if((strcmp(l->treeNode->attr.type, "Variável") == 0) || (strcmp(l->treeNode->attr.type, "Vetor") == 0))
-								//printf("ACHAMOS: >%d<\n", l->memloc);
 								return l->memloc;
 						
 					}
 				}
 			}
 	}
-	return 10;
+	return -1;
 }
 
 

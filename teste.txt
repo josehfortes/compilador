@@ -11,7 +11,8 @@ void teste(int a, int b, int c){
  a = 50;
 }
 
-int testee(void){
+int testee(int a){
+ a = 1 + 1;
  return 10;
 }
 
@@ -22,5 +23,5 @@ void main(void)
   int f;
   /*teste(a + 9999, b, f);*/
   a = input();
-  output(a);
+  output(testee(a));
 }

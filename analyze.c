@@ -105,7 +105,7 @@ static void insertNode( TreeNode * t)
 
 
 		t->attr.type = "Função";
-		st_insert(nomeFuncao,t->attr.name,t->lineno,addLocation(),t); //insere na tabela,
+		st_insert(nomeFuncao,t->attr.name,t->lineno,declaraVariavel(),t); //insere na tabela,
 		sc_push(sc_create(nomeFuncao));
 		preserveLastScope = TRUE;
 		//fprintf(listing, "Funcao - Nome: %s, Tipo: %s\n",t->child[0]->attr.name, t->attr.name);
@@ -316,25 +316,7 @@ static void afterInsertNode( TreeNode * t ) {
   	}
 }
 
-static void inputOutputInsert(void){
-	TreeNode *input;
 
-	input = newExpNode(FuncaoK);
-	input->lineno = -1;
-	input->attr.name = "input";
-	input->attr.type = "Função";
-	st_insert(input->attr.name,"Integer",input->lineno,addLocation(),input); //insere na tabela
-
-	TreeNode *output;
-
-	output = newExpNode(FuncaoK);
-	output->lineno = -1;
-	output->attr.name = "output";
-	output->attr.type = "Função";
-	st_insert(output->attr.name,"Void",output->lineno,addLocation(),output); //insere na tabela
-
-
-}
 
 /* Function buildSymtab constructs the symbol
  * table by preorder traversal of the syntax tree
@@ -342,7 +324,6 @@ static void inputOutputInsert(void){
 void buildSymtab(TreeNode * syntaxTree) {
 	globalScope = sc_create(NULL);
 	sc_push(globalScope);
-	inputOutputInsert();
 	traverse(syntaxTree,insertNode,afterInsertNode);
 	sc_pop();
 	if(mainDeclarada == 0) {
