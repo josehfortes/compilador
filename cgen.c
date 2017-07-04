@@ -1107,6 +1107,8 @@ void gera_assembly(){
 			asl_insert(asl_create(JMP, op));
 		break;
 		case FunctionReturnK:
+			//precisamos de recuperar a posicao na memoria pra dar o jmpr
+			
 		break;
 		case InputK:
 			op.value = 31;
@@ -1595,7 +1597,13 @@ static void genStmt( TreeNode * tree)
 	break;
 	case ReturnK:
 		printf("entrou no ReturnK\n");
- 		if(strcmp(tree->child[0]->attr.type, "Integer") == 0){
+		if(tree->child[0]->attr.type == NULL){
+			//temporario
+			cGen(tree->child[0]);
+ 			Operand op2 = {TempK, tempT};
+ 			ail_insert(ail_create(FunctionReturnK, op2, opn, opn)); //FunctionReturnK para retorno de inteiro
+		}
+ 		else if(strcmp(tree->child[0]->attr.type, "Integer") == 0){
  			Operand op2 = {ImmK, tree->child[0]->attr.val};
  			ail_insert(ail_create(FunctionReturnK, op2, opn, opn)); //FunctionReturnK para retorno de inteiro
  		}

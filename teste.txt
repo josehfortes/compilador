@@ -13,7 +13,7 @@ void teste(int a, int b, int c){
 
 int testee(int a){
  a = 1 + 1;
- return 10;
+ return (a-5)/10;
 }
 
 void main(void)
