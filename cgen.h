@@ -39,7 +39,7 @@
 
  typedef enum {
    ADD, ADDI, SUB, SUBI, MULT, DIV,
-   BEQ, BNE, BGT, BLT, JMP,
+   BEQ, BNE, BGT, BLT, JMP, JMPR,
    LW, STORE, MOV,
    NOP, HLT, RESET,
    IN, OUT, OUT3, LAB, GOTO

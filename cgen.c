@@ -1063,8 +1063,23 @@ void gera_assembly(){
 			*/
 		break;
 		case FunctionCallK:
+			
 		break;
 		case FunctionReturnK:
+		break;
+		case InputK:
+			op.value = 31;
+			asl_insert(asl_create(IN, op));
+		break;
+		case OutputK:
+			//addi com a var1
+			op.value = 31;
+			op.value2 = t->op1.value;
+			asl_insert(asl_create(ADDI, op));
+			op.value2 = 31;
+			asl_insert(asl_create(LW, op));
+			op.value3 = 31;
+			asl_insert(asl_create(OUT3, op));
 		break;
 		}
     t = t->next;
@@ -1125,6 +1140,15 @@ void print_assembly(){
 	  break;
 	  case BLT:
 		printf("BLT REG_%d, REG_%d GO TO %d\n", t->op1.value, t->op1.value2,t->op1.value3);
+	  break;
+	  case IN:
+		printf("IN REG_%d\n", t->op1.value);
+	  break;
+	  case OUT:
+		printf("OUT REG_%d\n", t->op1.value);
+	  break;
+	  case OUT3:
+		printf("OUT3 REG_%d REG_%d REG_%d\n", t->op1.value,t->op1.value2,t->op1.value3);
 	  break;
     }
     t = t->next;
@@ -1435,7 +1459,10 @@ void ail_print(){
 		case FunctionCallK:
 			printf("(cal,%d,%d,t%d)\n",t->op1.value,t->op2.value,t->op3.value);
 		case InputK:
-			printf("(IN,t%d,_ ,_)\n",t->op3.value);
+			printf("(IN,t%d,_,_)\n",t->op3.value);
+		break;
+		case OutputK:
+			printf("(OUT,%d,_,_)\n",t->op1.value);
 		break;
 		case FunctionVoidCallK:
 			printf("(Vcal,%d,%d,_)\n",t->op1.value, t->op2.value);
@@ -1668,6 +1695,7 @@ static void genExp( TreeNode * tree)
 		TreeNode * t = tree->child[0];
 		int nescopo = busca_parametro(tree->attr.name);
 		int nvar;
+		int out;
 		while(t != NULL){
 		nvar = busca_var_par(nescopo, qt);
 		 if (t->attr.type == NULL){
@@ -1729,7 +1757,13 @@ static void genExp( TreeNode * tree)
 		op3.value = tempT;
 		Operand op1 = {TempK, funcao};
 		op2.value = qt;
-		ail_insert(ail_create(FunctionCallK, op1, op2, op3));
+		
+		if(strcmp(tree->attr.name, "output") == 0){
+			op1.value = nvar;
+			ail_insert(ail_create(OutputK, op1, op2, op3));
+		}
+		else
+			ail_insert(ail_create(FunctionCallK, op1, op2, op3));
 
 	break;
     case IdK :

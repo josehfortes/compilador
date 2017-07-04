@@ -22,4 +22,5 @@ void main(void)
   int f;
   /*teste(a + 9999, b, f);*/
   a = input();
+  output(a);
 }
