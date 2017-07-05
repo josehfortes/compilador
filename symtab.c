@@ -355,6 +355,23 @@ int buscaEscopo(char * name){
 				}
 			}
 	}
+	//buscamos agora no escopo global
+	Scope scope = scopes[0];
+	BucketList * hashTable = scope->hashTable;
+	int j;
+	for (j = 0; j < SIZE; ++j) {
+		if (hashTable[j] != NULL) {
+			BucketList l = hashTable[j];
+			TreeNode *node = l->treeNode;
+
+			while (l != NULL) {
+				LineList t = l->lines;
+				if(strcmp(l->name, name) == 0)
+						return l->memloc;
+				l = l->next;
+			}
+   		}
+  	}
 	return -1;
 }
 

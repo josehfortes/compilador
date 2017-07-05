@@ -23,6 +23,7 @@ int fibonacci(int n){
             second = next; /* Estava second = first */
         }
         c = c + 1;
+		output(c);
     }
     return next;
 }

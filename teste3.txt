@@ -28,6 +28,7 @@ void sort(int num[], int tam){
         i = i + 1;
     }
 }
+
 void main(void){
     int vetor[4];
     int i;
