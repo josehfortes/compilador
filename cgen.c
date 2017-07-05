@@ -1223,8 +1223,8 @@ void gera_assembly(){
 
       if(t->op1.kind == ImmK){
         //é imediato
-        op.value = 31;
-  			op.value2 = busca_funcao_memoria(t->op1.value);
+			op.value = 31;
+  			op.value2 = t->op1.value;
   			asl_insert(asl_create(ADDI, op));
       }
       else if(t->op1.kind == SymtabK){
@@ -1376,7 +1376,7 @@ void gera_txt(){
 
     if(t->pos == 1){
       //busca a main
-      sprintf(cont, "{6'b011100, 26'd%d};",buscaLab(24));
+      sprintf(cont, "{6'b011100, 26'd%d}; //ir para main",buscaLab(24));
     }
     else
     switch(t->ins){
@@ -1390,6 +1390,7 @@ void gera_txt(){
       break;
       case SUB:
         //printf("SUB REG_%d, REG%d - REG%d\n",t->op1.value3,t->op1.value,t->op1.value2);
+		sprintf(cont, "{6'd000010, 5'd%d, 5'd%d, 5'd%d, 11'd0}; //add",t->op1.value, t->op1.value2, t->op1.value3);
       break;
       case MULT:
         sprintf(cont, "{6'b000100, 5'd%d, 5'd%d, 5'd%d, 11'd0}; //mult",t->op1.value, t->op1.value2, t->op1.value3);
