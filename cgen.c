@@ -1162,7 +1162,20 @@ void gera_assembly(){
 			}
 			else if(t->op1.kind == VecK){
 				//é um vetor
-
+        //somamos o seu valor no reg1
+        AssemblyOperand op4 = {reg1,decimal_binario(t->op1.value)};
+				asl_insert(asl_create(ADDI, op4));
+        //falta ainda o tamanho
+        reg3 = busca_reg_livre();
+        AssemblyOperand op5 = {reg3,decimal_binario(t->op1.tam)};
+				asl_insert(asl_create(ADDI, op5));
+        //fazemos uma soma entre reg1 e reg3 e armazenamos no reg1
+        AssemblyOperand op6 = {reg1,reg3,reg1};
+				asl_insert(asl_create(ADD, op6));
+        //damos um load no reg1
+        AssemblyOperand op7 = {reg1, reg1};
+				asl_insert(asl_create(LW, op7));
+        limpa_reg(reg3);
 			}
 			else{
 				//é uma variavel
@@ -1175,8 +1188,8 @@ void gera_assembly(){
 			}
 
 			//fazemos um store agora para armazenar na posição correta o parametro
-			AssemblyOperand op6 = {reg1, reg2};
-			asl_insert(asl_create(STORE, op6));
+			AssemblyOperand op8 = {reg1, reg2};
+			asl_insert(asl_create(STORE, op8));
 			//liberamos os 2 registradores
 			limpa_reg(reg1);
 			limpa_reg(reg2);
@@ -1223,7 +1236,7 @@ void gera_assembly(){
 
       if(t->op1.kind == ImmK){
         //é imediato
-			op.value = 31;
+			  op.value = 31;
   			op.value2 = t->op1.value;
   			asl_insert(asl_create(ADDI, op));
       }
@@ -1236,11 +1249,12 @@ void gera_assembly(){
         op.value = reg1;
   			op.value2 = reg1;
   			asl_insert(asl_create(LW, op));
-        //add reg 1 com reg 31
+        //add reg 1 com reg 0 e armazena no reg31
         op.value = reg1;
-        op.value = 31;
+        op.value2 = 0;
         op.value3 = 31;
         asl_insert(asl_create(ADD, op));
+        limpa_reg(reg1);
       }
       else if(t->op1.kind == TempK){
         //é temporario
@@ -1462,6 +1476,7 @@ void gera_txt(){
     fputs(string, arq);
     t = t->next;
   }
+   //halt
   fclose(arq);
 }
 

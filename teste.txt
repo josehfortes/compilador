@@ -6,14 +6,23 @@ void output(int out)
 {
 }
 
-int teste(int a){
- return 10;
+/*
+int foo(int x, int y, int z, int w){
+  return x;
 }
+*/
+
+int sassa(int n){
+  return n;
+}
+
+int vetor[2];
 
 void main(void)
 {
   int a;
-  a = 1;
-  a = teste(a);
-  output(a);
+  int n;
+  vetor[0] = input();
+  vetor[1] = sassa(vetor[0]);
+  output(vetor[1]);
 }
