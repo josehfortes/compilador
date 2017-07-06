@@ -300,6 +300,28 @@ int cgen_search_top(char * name){
   return h;
 }
 
+int cgen_busca_func_void (char * name){
+	Scope scope = scopes[0];
+	BucketList * hashTable = scope->hashTable;
+	int j;
+	for (j = 0; j < SIZE; ++j) {
+		if (hashTable[j] != NULL) {
+			BucketList l = hashTable[j];
+			TreeNode *node = l->treeNode;
+			while (l != NULL) {
+				LineList t = l->lines;
+				if(strcmp(l->name, name) == 0)
+					if(strcmp(l->tipo, "Void") == 0)
+						return 1;
+					else
+						return 0;
+				l = l->next;
+			}
+   		}
+  	}
+	return 0;
+}
+
 int busca_parametro (char * name){
 	int h = hash(name);
 	int i;

@@ -1162,20 +1162,32 @@ void gera_assembly(){
 			}
 			else if(t->op1.kind == VecK){
 				//é um vetor
-        //somamos o seu valor no reg1
-        AssemblyOperand op4 = {reg1,decimal_binario(t->op1.value)};
+				//somamos o seu valor no reg1
+				AssemblyOperand op4 = {reg1,decimal_binario(t->op1.value)};
 				asl_insert(asl_create(ADDI, op4));
-        //falta ainda o tamanho
-        reg3 = busca_reg_livre();
-        AssemblyOperand op5 = {reg3,decimal_binario(t->op1.tam)};
-				asl_insert(asl_create(ADDI, op5));
-        //fazemos uma soma entre reg1 e reg3 e armazenamos no reg1
-        AssemblyOperand op6 = {reg1,reg3,reg1};
+				//falta ainda o tamanho
+				reg3 = busca_reg_livre();
+				//se for imediato
+				if(t->op1.kind == ImmK){
+					AssemblyOperand op5 = {reg3,decimal_binario(t->op1.tam)};
+					asl_insert(asl_create(ADDI, op5));
+				}
+				else{
+					//é variavel
+					AssemblyOperand op5 = {reg3,decimal_binario(t->op1.tam)};
+					asl_insert(asl_create(ADDI, op5));
+					//fazemos LW 
+					op.value = reg3;
+					op.value2 = reg3;
+					asl_insert(asl_create(LW, op));
+				}
+				//fazemos uma soma entre reg1 e reg3 e armazenamos no reg1
+				AssemblyOperand op6 = {reg1,reg3,reg1};
 				asl_insert(asl_create(ADD, op6));
-        //damos um load no reg1
-        AssemblyOperand op7 = {reg1, reg1};
+				//damos um load no reg1
+				AssemblyOperand op7 = {reg1, reg1};
 				asl_insert(asl_create(LW, op7));
-        limpa_reg(reg3);
+				limpa_reg(reg3);
 			}
 			else{
 				//é uma variavel
@@ -1236,7 +1248,7 @@ void gera_assembly(){
 
       if(t->op1.kind == ImmK){
         //é imediato
-			  op.value = 31;
+		    op.value = 31;
   			op.value2 = t->op1.value;
   			asl_insert(asl_create(ADDI, op));
       }
@@ -1993,6 +2005,16 @@ static void genStmt( TreeNode * tree)
 	break;
     case FuncaoK:
 		printf("entrou no FuncaoK\n");
+		//verificamos se a funcao é void ou nao
+		if(nomeEscopoAtual != NULL)
+		if(strcmp(nomeEscopoAtual, "output") != 0)
+			if(strcmp(nomeEscopoAtual, "main") != 0)
+				if (cgen_busca_func_void(nomeEscopoAtual) > 0){
+					printf("AKK> %s\n",nomeEscopoAtual);
+					Operand op2 = {TempK, -1};
+					Operand op3 = {TempK, cgen_search_top(nomeEscopoAtual)};
+					ail_insert(ail_create(FunctionReturnK, op2, op3, opn));
+				}
         pos = cgen_search_top(tree->child[0]->attr.name);
 		nomeEscopoAtual = tree->child[0]->attr.name;
         Operand op1 = {SymtabK, pos};
