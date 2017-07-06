@@ -6,23 +6,13 @@ void output(int out)
 {
 }
 
-/*
-int foo(int x, int y, int z, int w){
-  return x;
-}
-*/
-
-int sassa(int n){
-  return n;
-}
-
-int vetor[2];
-
 void main(void)
 {
   int a;
+  int b;
   int n;
-  vetor[0] = input();
-  vetor[1] = sassa(vetor[0]);
-  output(vetor[1]);
+  a = 10;
+  b = 20;
+  n = b + a;
+  output(n);
 }

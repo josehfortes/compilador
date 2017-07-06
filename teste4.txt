@@ -8,22 +8,22 @@ void output(int out)
 
 int vetor[2];
 
-int foo(int x, int y, int z, int w){
+int foo(int a, int b, int c, int d){
     int result;
     int ret;
     result = 0;
     while(result >= 0){
-        if(x < 2)
-            result = x + y;
-        if(y > 2)
-            result = result + y + z;
+        if(a < 2)
+            result = a + b;
+        if(b > 2)
+            result = result + b + c;
         else
             result = result * 3;
-        if(w <= 4){
-            if(z == 0)
+        if(d <= 4){
+            if(c == 0)
                 return 0;
             if(result != 0){
-              ret = result/(w - 1);
+              ret = result/(d - 1);
               return ret;
             }
 
@@ -33,7 +33,6 @@ int foo(int x, int y, int z, int w){
 
 void main(void){
     vetor[0] = input();
-    output(vetor[0]);
     vetor[1] = foo(1, vetor[0], 3, 4);
     output(vetor[1]);
 }

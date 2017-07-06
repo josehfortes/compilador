@@ -1404,7 +1404,7 @@ void gera_txt(){
       break;
       case SUB:
         //printf("SUB REG_%d, REG%d - REG%d\n",t->op1.value3,t->op1.value,t->op1.value2);
-		sprintf(cont, "{6'd000010, 5'd%d, 5'd%d, 5'd%d, 11'd0}; //add",t->op1.value, t->op1.value2, t->op1.value3);
+		sprintf(cont, "{6'b000010, 5'd%d, 5'd%d, 5'd%d, 11'd0}; //sub",t->op1.value, t->op1.value2, t->op1.value3);
       break;
       case MULT:
         sprintf(cont, "{6'b000100, 5'd%d, 5'd%d, 5'd%d, 11'd0}; //mult",t->op1.value, t->op1.value2, t->op1.value3);
