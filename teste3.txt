@@ -6,7 +6,7 @@ void output(int out)
 {
 }
 
-int vetor[4];
+int num[4];
 
 void sort(int tam){
     int i;
@@ -18,14 +18,14 @@ void sort(int tam){
         min = i;
         j = i + 1;
         while (j < tam){
-            if(vetor[j] < vetor[min])
+            if(num[j] < num[min])
                 min = j;
             j = j + 1;
         }
         if (i != min){
-            aux = vetor[i];
-            vetor[i] = vetor[min];
-            vetor[min] = aux;
+            aux = num[i];
+            num[i] = num[min];
+            num[min] = aux;
         }
         i = i + 1;
     }
@@ -35,12 +35,12 @@ void sort(int tam){
 void main(void){
     int i;
     int n; /*9687*/
-    vetor[0] = 9;
-    vetor[1] = 6;
-    vetor[2] = 8;
-    vetor[3] = 7;
+    num[0] = 9;
+    num[1] = 6;
+    num[2] = 8;
+    num[3] = 7;
     sort(4);
     i = input();
-    n = vetor[i];
+    n = num[i];
     output(n);
 }

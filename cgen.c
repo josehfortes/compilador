@@ -799,7 +799,7 @@ void gera_assembly(){
 			limpa_reg(reg2);
 		break;
 		case CmpLK:
-		reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
+		  reg1 = busca_reg_livre();//vai receber a posicao da memoria a ser armazenado
 			reg2 = busca_reg_livre();
 			posmem1 = t->op1.value;
 			//pode ser uma variavel ou um vetor
@@ -829,9 +829,10 @@ void gera_assembly(){
 					//criamos um add entre esses 2 registradores e armazenamos no proprio reg1
 					AssemblyOperand op4 = {reg1,reg3, reg1};
 					asl_insert(asl_create(ADD, op4));
+          /*
           op.value = reg1;
           op.value2 = reg1;
-          asl_insert(asl_create(LW, op));
+          asl_insert(asl_create(LW, op));*/
 					limpa_reg(reg3);
 				}
 			}
@@ -844,6 +845,7 @@ void gera_assembly(){
 			op.value = reg1;
 			op.value2 = reg1;
 			asl_insert(asl_create(LW, op));
+
 
 			//vamos ver o que a variavel ira aramzenar
 			if(t->op2.kind == ImmK){

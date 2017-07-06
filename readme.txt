@@ -10,4 +10,4 @@ gcc -o cminus *.o -ly -lfl
 
 clear
 
-./cminus teste.txt
+./cminus teste3.txt

@@ -6,14 +6,43 @@ void output(int out)
 {
 }
 
-int r;
-int a;
+int vetor[4];
+int t;
+
+void sort(int tam){
+  int i;
+  int j;
+  int min;
+  int aux;
+  i = 0;
+  while (i < tam-1){
+    min = i;
+    j = i + 1;
+    while (j < tam){
+        if(vetor[j] < vetor[min])
+            min = j;
+        j = j + 1;
+    }
+    if (i != min){
+        aux = vetor[i];
+        vetor[i] = vetor[min];
+        vetor[min] = aux;
+    }
+    i = i + 1;
+  }
+}
+
 
 void main(void)
 {
-  a = 2;
-  r = 20;
-  if(r < 40-a)
-    a = 1;
-  output(a);
+  int n;
+  int k;
+  vetor[0] = 9;
+  vetor[1] = 6;
+  vetor[2] = 8;
+  vetor[3] = 7;
+  sort(4);
+  k = input();
+  n = vetor[k];
+  output(n);
 }
