@@ -32,7 +32,8 @@ int foo(int a, int b, int c, int d){
 }
 
 void main(void){
+    int n;
     vetor[0] = input();
-    vetor[1] = foo(1, vetor[0], 3, 4);
-    output(vetor[1]);
+    n = foo(1, vetor[0], 3, 4);
+    output(n);
 }

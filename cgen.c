@@ -147,6 +147,7 @@ void gera_assembly(){
 				//é uma variavel
 				AssemblyOperand op = {reg1,decimal_binario(posmem1)};
 				asl_insert(asl_create(ADDI, op));
+
 			}
 			else{
 				//é um vetor
@@ -204,8 +205,8 @@ void gera_assembly(){
 				else{
 					//o operando é uma variavel, precismaos de armazenar ela em um vetor, somar com o posmem2 e só depois dar o lw
 					//fazemos um addi com o posmem2
-					AssemblyOperand op = {reg2,decimal_binario(posmem2)};
-					asl_insert(asl_create(ADDI, op));
+					AssemblyOperand op = {reg2,t->op2.value};
+					asl_insert(asl_create(ADDI, op)); //temos no reg2 a pos de memoria do vetor
 					//buscamos o valor da variavel
 					reg3 = busca_reg_livre();
 					//fazemos um addi com a variavel no vetor reg3
@@ -217,10 +218,14 @@ void gera_assembly(){
 					//somamos os dois e armazenamos no reg2
 					AssemblyOperand op4 = {reg2,reg3, reg2};
 					asl_insert(asl_create(ADD, op4));
+          //fazemos outro load com o reg2
+          op.value = reg2;
+          op.value2 = reg2;
+          asl_insert(asl_create(LW, op));
 					//liberamos o reg3
 					limpa_reg(reg3);
 				}
-			}
+			}//fim vec
 			else{
 				//é uma variavel
 				reg2 = busca_reg_livre();
@@ -1176,7 +1181,7 @@ void gera_assembly(){
 					//é variavel
 					AssemblyOperand op5 = {reg3,decimal_binario(t->op1.tam)};
 					asl_insert(asl_create(ADDI, op5));
-					//fazemos LW 
+					//fazemos LW
 					op.value = reg3;
 					op.value2 = reg3;
 					asl_insert(asl_create(LW, op));
@@ -1408,7 +1413,7 @@ void gera_txt(){
     switch(t->ins){
       case ADD:
         //printf("ADD REG_%d, REG%d + REG%d\n",t->op1.value3,t->op1.value,t->op1.value2);
-        sprintf(cont, "{6'd000000, 5'd%d, 5'd%d, 5'd%d, 11'd0}; //add",t->op1.value, t->op1.value2, t->op1.value3);
+        sprintf(cont, "{6'b000000, 5'd%d, 5'd%d, 5'd%d, 11'd0}; //add",t->op1.value, t->op1.value2, t->op1.value3);
       break;
 	    case ADDI:
         //printf("ADDI REG_%d, %d\n",t->op1.value,t->op1.value2);
@@ -2153,7 +2158,7 @@ static void genExp( TreeNode * tree)
 			if(strcmp(tree->child[0]->attr.typeVar, "vector") == 0){
 				int posvec = tree->child[0]->child[0]->attr.val;
 				//a variavel é um vetor
-				op1.kind = VecAsgK;
+				op1.kind = VecK;
 				op1.value = var1;
 				op1.tam = posvec;
 				op1.type = ImmK;
