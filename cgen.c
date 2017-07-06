@@ -829,6 +829,9 @@ void gera_assembly(){
 					//criamos um add entre esses 2 registradores e armazenamos no proprio reg1
 					AssemblyOperand op4 = {reg1,reg3, reg1};
 					asl_insert(asl_create(ADD, op4));
+          op.value = reg1;
+          op.value2 = reg1;
+          asl_insert(asl_create(LW, op));
 					limpa_reg(reg3);
 				}
 			}
@@ -882,6 +885,9 @@ void gera_assembly(){
 					//somamos os dois e armazenamos no reg2
 					AssemblyOperand op4 = {reg2,reg3, reg2};
 					asl_insert(asl_create(ADD, op4));
+          op.value = reg2;
+          op.value2 = reg2;
+          asl_insert(asl_create(LW, op));
 					//liberamos o reg3
 					limpa_reg(reg3);
 				}

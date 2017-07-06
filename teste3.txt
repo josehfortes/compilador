@@ -8,7 +8,6 @@ void output(int out)
 
 int vetor[4];
 
-/*
 void sort(int tam){
     int i;
     int j;
@@ -31,16 +30,16 @@ void sort(int tam){
         i = i + 1;
     }
 }
-*/
+
 
 void main(void){
     int i;
-    int n;
+    int n; /*9687*/
     vetor[0] = 9;
     vetor[1] = 6;
     vetor[2] = 8;
     vetor[3] = 7;
-    /*sort(4);*/
+    sort(4);
     i = input();
     n = vetor[i];
     output(n);
