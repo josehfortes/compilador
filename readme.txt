@@ -10,4 +10,4 @@ gcc -o cminus *.o -ly -lfl
 
 clear
 
-./cminus teste3.txt
+./cminus codigos/isDivisibleBySeven.c
