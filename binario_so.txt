@@ -1,58 +1,66 @@
 mem_instrucoes[0] = {6'b101000, 26'd0}; //nop
 mem_instrucoes[1] = {6'b011100, 26'd125}; //ir para main
-mem_instrucoes[2] = {6'b101000, 26'd0}; //nop
+mem_instrucoes[2] = {6'b101000, 26'd0}; //nop                       INICIO FUNCAO ALTERACONTEXTO
 mem_instrucoes[3] = {6'b000001, 5'd3, 21'd8}; //addi
 mem_instrucoes[4] = {6'b100000, 5'd3, 5'd3, 16'd0}; //lw
 mem_instrucoes[5] = {6'b000001, 5'd1, 21'd4}; //addi
 mem_instrucoes[6] = {6'b000000, 5'd1, 5'd3, 5'd1, 11'd0}; //add
-mem_instrucoes[7] = {6'b000001, 5'd2, 21'd123}; //addi
-mem_instrucoes[8] = {6'b100001, 5'd2, 5'd1, 16'd0}; //store
+mem_instrucoes[8] = {6'b100001, 5'd30, 5'd1, 16'd0}; //store - armazena o PC na posicao do vetor que salva os pcs
 mem_instrucoes[9] = {6'b000001, 5'd1, 21'd8}; //addi
-mem_instrucoes[10] = {6'b000001, 5'd3, 21'd13}; //addi
-mem_instrucoes[11] = {6'b100000, 5'd3, 5'd3, 16'd0}; //lw
-mem_instrucoes[12] = {6'b100001, 5'd3, 5'd1, 16'd0}; //store
+mem_instrucoes[10] = {6'b000001, 5'd29, 21'd13}; //addi
+mem_instrucoes[11] = {6'b100000, 5'd29, 5'd29, 16'd0}; //lw - REG29 possui o novo contexto
+mem_instrucoes[12] = {6'b100001, 5'd29, 5'd1, 16'd0}; //store - armazena o novo contexto
 mem_instrucoes[13] = {6'b000001, 5'd4, 21'd8}; //addi
 mem_instrucoes[14] = {6'b100000, 5'd4, 5'd4, 16'd0}; //lw
 mem_instrucoes[15] = {6'b000001, 5'd1, 21'd4}; //addi
-mem_instrucoes[16] = {6'b000000, 5'd1, 5'd4, 5'd1, 11'd0}; //add
-mem_instrucoes[17] = {6'b000001, 5'd3, 21'd456}; //addi
-mem_instrucoes[18] = {6'b100001, 5'd3, 5'd1, 16'd0}; //store
-mem_instrucoes[19] = {6'b000001, 5'd1, 21'd8}; //addi
-mem_instrucoes[20] = {6'b000001, 5'd3, 21'd666}; //addi
-mem_instrucoes[21] = {6'b100001, 5'd3, 5'd1, 16'd0}; //store
-mem_instrucoes[22] = {6'b000001, 5'd1, 21'd8}; //addi
-mem_instrucoes[23] = {6'b000001, 5'd3, 21'd666}; //addi
-mem_instrucoes[24] = {6'b100001, 5'd3, 5'd1, 16'd0}; //store
-mem_instrucoes[25] = {6'b000001, 5'd1, 21'd8}; //addi
-mem_instrucoes[26] = {6'b000001, 5'd3, 21'd666}; //addi
-mem_instrucoes[27] = {6'b100001, 5'd3, 5'd1, 16'd0}; //store
-mem_instrucoes[28] = {6'b000001, 5'd1, 21'd8}; //addi
-mem_instrucoes[29] = {6'b000001, 5'd3, 21'd666}; //addi
-mem_instrucoes[30] = {6'b100001, 5'd3, 5'd1, 16'd0}; //store
-mem_instrucoes[31] = {6'b000001, 5'd1, 21'd8}; //addi
-mem_instrucoes[32] = {6'b000001, 5'd3, 21'd666}; //addi
-mem_instrucoes[33] = {6'b100001, 5'd3, 5'd1, 16'd0}; //store
-mem_instrucoes[34] = {6'b000001, 5'd1, 21'd8}; //addi
-mem_instrucoes[35] = {6'b000001, 5'd3, 21'd666}; //addi
-mem_instrucoes[36] = {6'b100001, 5'd3, 5'd1, 16'd0}; //store
-mem_instrucoes[37] = {6'b000001, 5'd1, 21'd8}; //addi
-mem_instrucoes[38] = {6'b000001, 5'd3, 21'd666}; //addi
-mem_instrucoes[39] = {6'b100001, 5'd3, 5'd1, 16'd0}; //store
-mem_instrucoes[40] = {6'b000001, 5'd1, 21'd8}; //addi
-mem_instrucoes[41] = {6'b000001, 5'd3, 21'd666}; //addi
-mem_instrucoes[42] = {6'b100001, 5'd3, 5'd1, 16'd0}; //store
-mem_instrucoes[43] = {6'b000001, 5'd1, 21'd8}; //addi
-mem_instrucoes[44] = {6'b000001, 5'd3, 21'd666}; //addi
-mem_instrucoes[45] = {6'b100001, 5'd3, 5'd1, 16'd0}; //store
-mem_instrucoes[46] = {6'b000001, 5'd1, 21'd8}; //addi
-mem_instrucoes[47] = {6'b000001, 5'd3, 21'd666}; //addi
-mem_instrucoes[48] = {6'b100001, 5'd3, 5'd1, 16'd0}; //store
+mem_instrucoes[16] = {6'b000000, 5'd1, 5'd4, 5'd1, 11'd0}; //add REG1 É O NOVO ENDEREÇO NA QUAL O PC DEVE PULAR
+mem_instrucoes[17] = {6'b100000, 5'd30, 5'd1, 16'd0}; //lw - REG30 possui o PC no qual ele deve pular
+// começa a copiar os dados do HD pros registradores
+mem_instrucoes[18] = {6'b000001, 5'd28, 21'0}; //addi
+mem_instrucoes[19] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+mem_instrucoes[20] = {6'b000001, 5'd28, 21'1}; //addi
+mem_instrucoes[21] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+mem_instrucoes[22] = {6'b000001, 5'd28, 21'2}; //addi
+mem_instrucoes[23] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+mem_instrucoes[24] = {6'b000001, 5'd28, 21'3}; //addi
+mem_instrucoes[25] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+mem_instrucoes[26] = {6'b000001, 5'd28, 21'4}; //addi
+mem_instrucoes[27] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+mem_instrucoes[28] = {6'b000001, 5'd28, 21'5}; //addi
+mem_instrucoes[29] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+mem_instrucoes[30] = {6'b000001, 5'd28, 21'6}; //addi
+mem_instrucoes[31] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+mem_instrucoes[32] = {6'b000001, 5'd28, 21'7}; //addi
+mem_instrucoes[33] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+
+mem_instrucoes[34] = {6'b000001, 5'd28, 21'8}; //addi
+mem_instrucoes[35] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+
+mem_instrucoes[36] = {6'b000001, 5'd28, 21'9}; //addi
+mem_instrucoes[37] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+
+mem_instrucoes[38] = {6'b000001, 5'd28, 21'10}; //addi
+mem_instrucoes[39] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+
+mem_instrucoes[40] = {6'b000001, 5'd28, 21'11}; //addi
+mem_instrucoes[41] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+
+mem_instrucoes[42] = {6'b000001, 5'd28, 21'12}; //addi
+mem_instrucoes[43] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+
+mem_instrucoes[44] = {6'b000001, 5'd28, 21'13}; //addi
+mem_instrucoes[45] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+mem_instrucoes[46] = {6'b000001, 5'd28, 21'31}; //addi
+mem_instrucoes[47] = {6'b111101, 5'd28, 5'd28, 5'd29, 11'd0}; //copia os dados do HD
+
+
+
 mem_instrucoes[49] = {6'b000001, 5'd1, 21'd8}; //addi
 mem_instrucoes[50] = {6'b000001, 5'd3, 21'd666}; //addi
 mem_instrucoes[51] = {6'b100001, 5'd3, 5'd1, 16'd0}; //store
 mem_instrucoes[52] = {6'b000001, 5'd1, 21'd12}; //addi
 mem_instrucoes[53] = {6'b100000, 5'd1, 5'd1, 16'd0}; //lw
-mem_instrucoes[54] = {6'b011101, 5'd1, 21'd0}; //jmpr
+mem_instrucoes[54] = {6'b011101, 5'd1, 21'd0};//jumpr                   FIM FUNCAO ALTERACONTEXTO
 mem_instrucoes[55] = {6'b101000, 26'd0}; //nop
 mem_instrucoes[56] = {6'b000001, 5'd1, 21'd16}; //addi
 mem_instrucoes[57] = {6'b000001, 5'd3, 21'd0}; //addi
