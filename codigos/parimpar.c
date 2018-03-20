@@ -17,7 +17,8 @@ int parimpar(int x)
 void main(void)
 {
     int a;
-    a = input();
+    /*a = input();*/
+	a = 5;
     a = parimpar(a);
     output(a);
 }

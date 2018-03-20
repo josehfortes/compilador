@@ -21,6 +21,7 @@ void main(void)
 {
     int a;
     a = input();
+	output(a);
     a = fatorial(a);
     output(a);
 }

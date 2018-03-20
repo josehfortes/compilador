@@ -32,6 +32,7 @@ int fibonacci(int n){
 void main(void){
   int n;
   n = input();
+  output(n);
   n = fibonacci(n);
   output(n);
 }

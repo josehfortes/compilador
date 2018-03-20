@@ -41,8 +41,9 @@ int raiz(int n)
 void main(void)
 {
     int number;
-
     number = input();
+	output(number);
+	/*number = 16;*/
     number = raiz(number);
     output(number);
 }

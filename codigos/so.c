@@ -38,7 +38,7 @@ void main(void)
 {
   int retPrograma;
   int getMenu;
-  maxProgram = 2;
+  maxProgram = 962;
   programAtual = 0;
   retPrograma = 0;
   execucao[1] = 1;
