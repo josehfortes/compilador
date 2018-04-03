@@ -38,80 +38,62 @@ void main(void)
 {
   int retPrograma;
   int getMenu;
-  maxProgram = 962;
+  maxProgram = 44;
   programAtual = 0;
   retPrograma = 0;
-  execucao[1] = 1;
-  execucao[2] = 1;
-  execucao[3] = 1;
-  execucao[4] = 1;
-  execucao[5] = 1;
-  execucao[6] = 1;
-  execucao[7] = 1;
-  execucao[8] = 1;
-  execucao[9] = 1;
-  execucao[10] = 1;
-  execucao[11] = 1;
-  output(99);
-  getMenu = input();
+  execucao[1] = 0;
+  execucao[2] = 0;
+  execucao[3] = 0;
+  execucao[4] = 0;
+  getMenu = 0;
   while (getMenu != 16){ /*se for 16 inicia a execucao */
-	  output(10);
+
 	  if(getMenu == 1){ /*seleciona quais programas quer executar - 16 sai da selecao */
 		getMenu = input();
-		while( getMenu != 16 ){
+		maxProgram = 9876;
 		  if(getMenu <= maxProgram){
 			  execucao[getMenu] = 1;
-			  output(getMenu);
 		  }
-		  output(11);
-		  getMenu = input();
-		}
 	  }
 	  if(getMenu == 2){
-		  
-		  output(22);
 		  execucao[1] = 1;
 		  execucao[2] = 1;
 		  execucao[3] = 1;
 		  execucao[4] = 1;
-		  execucao[5] = 1;
-		  execucao[6] = 1;
-		  execucao[7] = 1;
-		  execucao[8] = 1;
-		  execucao[9] = 1;
-		  execucao[10] = 1;
-		  execucao[11] = 1;
 	  }
 	  if (getMenu == 3){
-		  output(33);
 		  execucao[1] = 0;
 		  execucao[2] = 0;
 		  execucao[3] = 0;
 		  execucao[4] = 0;
-		  execucao[5] = 0;
-		  execucao[6] = 0;
-		  execucao[7] = 0;
-		  execucao[8] = 0;
-		  execucao[9] = 0;
-		  execucao[10] = 0;
-		  execucao[11] = 0;
 	  }
 	  if(getMenu == 4){ /*seleciona quais programas quer remover da execucao - 16 sai da selecao */
 		getMenu = input();
-		while( getMenu != 16 ){
+		maxProgram = 9876;
 		  if(getMenu <= maxProgram){
 			  execucao[getMenu] = 0;
-			  output(getMenu);
 		  }
-		  output(44);
-		  getMenu = input();
-		}
 	  }
-	  output(99);
 	  getMenu = input();
+	  maxProgram = 9876;
   }
   /*parte que SEMPRE se repete*/
+  if(execucao[0] == 0){
+	  if(execucao[1] == 0){
+		  if(execucao[2] == 0){
+			  if(execucao[3] == 0){
+				  getMenu = 666;
+			  }
+		  }
+	  }
+  }
+  
+  getMenu = 111;
+  execucao[programAtual] = 24;
+  getMenu = 222;
+	
+  getMenu = 999;
   retPrograma = buscaPrograma();
   programAtual = retPrograma;
-  
+  getMenu = 888;
 }
